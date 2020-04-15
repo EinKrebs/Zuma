@@ -1,6 +1,7 @@
 import math
 import random
 import unittest
+# TODO: remove QColor usages
 from PyQt5.QtGui import QColor
 from Ellipse import Ellipse
 from Shot import Shot
@@ -93,6 +94,9 @@ class Game:
             self.turret_angle = math.pi
 
 
+# TODO: remove test from file
+
+
 class GameTests(unittest.TestCase):
     def test_init(self):
         try:
@@ -100,6 +104,7 @@ class GameTests(unittest.TestCase):
         except TypeError:
             self.fail()
 
+# TODO: rewrite this
     def test_shot(self):
         game = Game(Ellipse(2, 5, 0, math.pi), [1, 0], 1, 1, 1, (0, 0))
         game.shoot()

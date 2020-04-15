@@ -1,6 +1,6 @@
 import sys
 from PyQt5 import QtGui, QtCore, QtWidgets
-from PyQt5.QtWidgets import *
+from PyQt5.QtWidgets import *  # TODO: remove all import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 import math
@@ -31,7 +31,8 @@ class ViewControl(QWidget):
         while True:
             self.update()
             QApplication.processEvents()
-            QThread.msleep(10)
+            # TODO: move model to another thread, or use QTimer
+            # QThread.msleep(10)
             self.game.go_next_state()
             self.draw_frog()
 

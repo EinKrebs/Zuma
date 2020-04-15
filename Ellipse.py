@@ -46,11 +46,6 @@ class Ellipse:
             (item[0] * item[0] / (self.width * self.width) + item[1] * item[
                 1] / (self.height * self.height)) - 1) < 1e-6
 
-    def draw_contains(self, item):
-        return item[1] >= -1e-6 and abs(
-            (item[0] * item[0] / (self.width * self.width) + item[1] * item[
-                1] / (self.height * self.height)) - 1) < 4 * 1e-3
-
     @staticmethod
     def sign(number):
         if abs(number) < 1e-6:
@@ -97,6 +92,9 @@ class Ellipse:
                             self.get_coordinates(self.start)) > 3 * radius
 
 
+# TODO: remove test from file
+
+
 class EclipseTest(unittest.TestCase):
     @staticmethod
     def get_random_ellipse():
@@ -135,19 +133,3 @@ class EclipseTest(unittest.TestCase):
             self.assertLess(abs(dist - radius), 1e-6,
                             msg=f"{next_point[0]}, {next_point[1]},"
                                 f" {dist}, {radius}")
-
-
-def main():
-    ellipse = Ellipse(2, 5, 0, math.pi)
-    for i in range(100):
-        print(get_distance((2, 0), ellipse.get_coordinates(i * math.pi / 100)))
-    point = ellipse.next_point((-2, 0), 1)
-    if point is None:
-        print("None")
-        return
-    print(*point)
-    print(get_distance(point, (-2, 0)))
-
-
-if __name__ == '__main__':
-    main()
