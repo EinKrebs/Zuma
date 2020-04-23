@@ -1,8 +1,9 @@
 import sys
-from PyQt5 import QtGui, QtCore, QtWidgets
-from PyQt5.QtWidgets import *  # TODO: remove all import *
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
+from PyQt5 import QtGui
+from PyQt5.QtWidgets import QWidget, QApplication, QLabel
+from PyQt5.QtGui import QPainter, QPaintEvent, QFont, QPen, QColor, QPixmap,\
+    QTransform
+from PyQt5.QtCore import Qt, QTimer
 import math
 
 from Game import Game
@@ -101,9 +102,15 @@ class ViewControl(QWidget):
 
     def draw_balls(self, event, qp):
         for ball in self.game.balls:
-            self.draw_ball(qp, ball.point, self.game.radius, ball.color)
+            self.draw_ball(qp,
+                           ball.point,
+                           self.game.radius,
+                           QColor(*ball.color))
         for shot in self.game.shot_balls:
-            self.draw_ball(qp, (shot.x, shot.y), self.game.radius, shot.color)
+            self.draw_ball(qp,
+                           (shot.x, shot.y),
+                           self.game.radius,
+                           QColor(*shot.color))
 
     def draw_ball(self, qp, point, radius, color):
         qp.setBrush(color)
