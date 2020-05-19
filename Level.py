@@ -7,7 +7,7 @@ from Ball import Ball
 import MathExtentions as mathExt
 
 
-class Game:
+class Level:
     def __init__(self,
                  ellipse: Ellipse,
                  balls: list,

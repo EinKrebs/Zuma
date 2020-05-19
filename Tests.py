@@ -3,7 +3,7 @@ import unittest
 import math
 
 from Ellipse import Ellipse
-from Game import Game
+from Level import Level
 from Ball import Ball
 from MathExtentions import get_distance
 import MathExtentions as mathExt
@@ -72,7 +72,7 @@ class EllipseTests(unittest.TestCase):
 class GameTests(unittest.TestCase):
     def test_move_balls_next_state(self):
         ellipse = Ellipse(100, 100, 0, math.pi)
-        game = Game(
+        game = Level(
             ellipse,
             [],
             5,
@@ -106,7 +106,7 @@ class GameTests(unittest.TestCase):
 
     def test_shot_first(self):
         ellipse = Ellipse(100, 100, 0, math.pi)
-        game = Game(
+        game = Level(
             ellipse,
             [0],
             5,
@@ -136,7 +136,7 @@ class GameTests(unittest.TestCase):
 
     def test_shot_last(self):
         ellipse = Ellipse(100, 100, 0, math.pi)
-        game = Game(
+        game = Level(
             ellipse,
             [0],
             5,
@@ -171,7 +171,7 @@ class GameTests(unittest.TestCase):
     def test_collapsing_simple(self):
         ellipse = Ellipse(100, 100, 0, math.pi)
         radius = 5
-        game = Game(ellipse, [], radius, 0, 0, (0, 0))
+        game = Level(ellipse, [], radius, 0, 0, (0, 0))
         game.balls.append(Ball(ellipse.get_coordinates(0.3, game.turret),
                                game.colors[0]))
         game.balls.insert(
@@ -195,7 +195,7 @@ class GameTests(unittest.TestCase):
     def test_multicollapsing(self):
         ellipse = Ellipse(1000, 1000, 0, math.pi)
         radius = 5
-        game = Game(ellipse, [], radius, 0, 0, (0, 0))
+        game = Level(ellipse, [], radius, 0, 0, (0, 0))
         game.balls.append(Ball(ellipse.get_coordinates(0.3, game.turret),
                                game.colors[1]))
         game.balls.insert(
