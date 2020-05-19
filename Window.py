@@ -22,7 +22,7 @@ class ViewControl(QWidget):
         self.height = 600
         self.setGeometry(100, 100, self.width, self.height)
         self.ellipse = Ellipse(400, 600, 0, math.pi)
-        self.game = Level(self.ellipse, [1, 1, 0, 0, 0, 1], 20, 1, 150, (0, 90))
+        self.game = Level(self.ellipse, [1, 1, 0, 0, 0, 1])
         self.setWindowTitle('Zuma')
         # self.image = QtGui.QImage("Frog.jpg")
         self.image = QLabel(self)

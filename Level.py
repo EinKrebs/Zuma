@@ -10,18 +10,14 @@ import MathExtentions as mathExt
 class Level:
     def __init__(self,
                  ellipse: Ellipse,
-                 balls: list,
-                 radius: float,
-                 speed: float,
-                 shot_speed: float,
-                 turret: tuple):
+                 balls: list):
         self.colors = [(0, 0, 0), (0, 255, 0)]
         self.ellipse = ellipse
         self.next_balls = balls
-        self.radius = radius
-        self.speed = speed
-        self.shot_speed = shot_speed
-        self.turret = turret
+        self.radius = 20
+        self.speed = 1
+        self.shot_speed = 150
+        self.turret = (0, 90)
 
         self.balls = []
         self.shots = []
@@ -40,6 +36,12 @@ class Level:
         self.finished = False
 
         self.more_to_collapse = -1
+
+    @staticmethod
+    def from_string_array(array: list):
+        ellipse = Ellipse(*map(int, array[0].split()))
+        balls = list(map(int, array[1].split))
+        return Level(ellipse, balls)
 
     def go_next_state(self):
         if self.finished or self.hp <= 0:

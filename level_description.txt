@@ -1,0 +1,2 @@
+ellipse: width, heigth, start(radians), finish(radians)
+balls: color numbers (1 to 2), divided by space
