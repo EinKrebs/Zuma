@@ -11,7 +11,7 @@ class Level:
     def __init__(self,
                  ellipse: Ellipse,
                  balls: list):
-        self.colors = [(0, 0, 0), (0, 255, 0)]
+        self.colors = [(0, 0, 0), (0, 255, 0), (255, 0, 0), (0, 0, 255)]
         self.ellipse = ellipse
         self.next_balls = balls
         self.radius = 20
@@ -22,6 +22,8 @@ class Level:
         self.balls = []
         self.shots = []
         self.turret_angle = math.pi / 2
+        self.color_count = self.count_colors()
+        self.remove_colors()
         self.turret_ball = random.randint(0, len(self.colors) - 1)
         self.turret_speed = 0.02
         self.left = False
@@ -43,6 +45,12 @@ class Level:
         balls = list(map(int, array[1].split()))
         return Level(ellipse, balls)
 
+    def count_colors(self):
+        count = [0] * len(self.colors)
+        for color in self.next_balls:
+            count[color] += 1
+        return count
+
     def go_next_state(self):
         if self.finished or self.hp <= 0:
             return
@@ -56,6 +64,7 @@ class Level:
         self.move_balls_next_state(self.speed)
         self.move_shots()
         self.collapse()
+        self.remove_colors()
         self.new_ball()
         self.ping = max(self.ping - 1, 0)
 
@@ -135,12 +144,14 @@ class Level:
     def shoot(self):
         if self.ping > 0:
             return
+        self.turret_ball = random.randint(0, len(self.colors) - 1)
         self.shots.append(
             Shot(self.turret[0], self.turret[1],
                  self.colors[self.turret_ball],
                  self.turret_angle,
                  self.shot_speed)
         )
+        self.color_count[self.turret_ball] += 1
         self.ping = 20
         self.turret_ball = random.randint(0, len(self.colors) - 1)
 
@@ -232,10 +243,30 @@ class Level:
 
     def remove_collapsing(self, length, start):
         self.score += 3 ** (length - 2)
-        if start > 0:
+        if (
+                start > 0
+                and start + length < len(self.balls)
+                and self.balls[start - 1].color
+                == self.balls[start + length].color
+        ):
+            self.balls[start + length].collapsing = True
             self.balls[start - 1].collapsing = True
             self.more_to_collapse = start - 1
-        if start + length - 1 < len(self.balls):
-            self.balls[start + length - 1].collapsing = True
+        self.color_count[self.get_color_number(self.balls[start].color)] -= length
         for j in range(length):
             self.balls.pop(start)
+
+    def get_color_number(self, color):
+        i = 0
+        while self.colors[i] != color:
+            i += 1
+        return i
+
+    def remove_colors(self):
+        i = 0
+        while i < len(self.colors):
+            if self.color_count[i] == 0:
+                self.color_count.pop(i)
+                self.colors.pop(i)
+            else:
+                i += 1
