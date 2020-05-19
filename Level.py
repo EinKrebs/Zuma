@@ -65,6 +65,8 @@ class Level:
         self.move_shots()
         self.collapse()
         self.remove_colors()
+        if self.turret_ball >= len(self.colors):
+            self.turret_ball -= 1
         self.new_ball()
         self.ping = max(self.ping - 1, 0)
 
@@ -144,7 +146,6 @@ class Level:
     def shoot(self):
         if self.ping > 0:
             return
-        self.turret_ball = random.randint(0, len(self.colors) - 1)
         self.shots.append(
             Shot(self.turret[0], self.turret[1],
                  self.colors[self.turret_ball],

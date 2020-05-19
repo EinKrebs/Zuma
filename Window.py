@@ -4,7 +4,7 @@ from PyQt5 import QtWidgets
 from PyQt5 import QtGui
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QWidget, QApplication, QLabel
-from PyQt5.QtGui import QPainter, QPaintEvent, QFont, QPen, QColor, QPixmap,\
+from PyQt5.QtGui import QPainter, QPaintEvent, QFont, QPen, QColor, QPixmap, \
     QTransform
 from PyQt5.QtCore import Qt, QTimer
 import math
@@ -114,7 +114,7 @@ class ViewControl(QWidget):
         elif self.game.over == -1:
             self.draw_stats(event, qp)
             self.draw_game(event, qp)
-            self.draw_frog()
+            self.draw_frog(qp)
             self.debug_draw(qp)
         else:
             self.draw_game_over(qp)
@@ -140,8 +140,8 @@ class ViewControl(QWidget):
                        size.height() - self.ellipse.height,
                        2 * self.ellipse.width, 2 * self.ellipse.height)
 
-    def draw_frog(self):
-        self.pixmap = QPixmap('Frog.jpg')
+    def draw_frog(self, qp):
+        self.pixmap = QPixmap('Frog.png')
         self.image.resize(self.pixmap.width() * math.sqrt(2),
                           self.pixmap.height() * math.sqrt(2))
         self.image.move(self.width // 2 - self.current_level.turret[
@@ -152,6 +152,21 @@ class ViewControl(QWidget):
                                  ) / math.pi * 180)
 
         self.image.setPixmap(self.pixmap.transformed(t))
+        if len(self.current_level.colors) == 0:
+            return
+        transform = qp.transform()
+        qp.translate(
+            self.width // 2 - self.current_level.turret[
+                0],
+            self.height - self.current_level.turret[
+                1])
+        qp.rotate(self.current_level.turret_angle / math.pi * 180)
+        qp.setBrush(
+            QColor(*self.current_level.colors[
+                self.current_level.turret_ball]))
+        qp.drawEllipse(QtCore.QPoint(0, 0), 2, 2)
+        qp.drawEllipse(QtCore.QPointF(38, 0), 19, 17)
+        qp.setTransform(transform)
 
     def draw_balls(self, event, qp):
         for ball in self.current_level.balls:
