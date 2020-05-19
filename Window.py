@@ -1,4 +1,5 @@
 import sys
+from threading import Thread
 from PyQt5 import QtWidgets
 from PyQt5 import QtGui
 from PyQt5 import QtCore
@@ -29,6 +30,7 @@ class ViewControl(QWidget):
         self.pixmap = None
         self.running = True
 
+        self.p = None
         self.next_btn = None
         self.initialise_button()
 
@@ -58,9 +60,12 @@ class ViewControl(QWidget):
         self.next_btn.hide()
 
     def timerEvent(self, e):
+        if self.p:
+            self.p.join()
         self.update()
         QApplication.processEvents()
-        self.game.update()
+        self.p = Thread(target=self.game.update)
+        self.p.start()
 
     def keyPressEvent(self, event: QtGui.QKeyEvent):
         current_level = self.current_level
@@ -107,7 +112,7 @@ class ViewControl(QWidget):
         elif not self.game.running:
             self.draw_level_completed(qp)
         elif self.game.over == -1:
-            self.draw_text(event, qp)
+            self.draw_stats(event, qp)
             self.draw_game(event, qp)
             self.draw_frog()
             self.debug_draw(qp)
@@ -116,7 +121,7 @@ class ViewControl(QWidget):
 
         qp.end()
 
-    def draw_text(self, event, qp):
+    def draw_stats(self, event, qp):
         qp.setFont(QFont('Segoe UI', 16))
         qp.drawText(
             QtCore.QRect(0, 0, 100, 60),
@@ -183,7 +188,8 @@ class ViewControl(QWidget):
         qp.drawText(
             QtCore.QRect(0, 0, self.width, self.height),
             Qt.AlignCenter,
-            'Congratulations,\n you won the game!'
+            'Congratulations,\n you won the game!\n'
+            f'Your final score is {self.game.score}'
         )
 
     def debug_draw(self, qp: QPainter):

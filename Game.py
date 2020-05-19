@@ -11,6 +11,7 @@ class Game:
         self.last_level_complete_time = None
         self.over = -1
         self.running = True
+        self.score = 0
 
     @staticmethod
     def from_string_array(array):
@@ -38,11 +39,10 @@ class Game:
         self.current_level.go_next_state()
         if self.current_level.hp <= 0:
             self.over = 0
-        if (self.current_level.finished
-                and self.current_level_index == len(self.levels) - 1):
-            self.over = 1
-        elif self.current_level.finished:
+            self.score += self.current_level.score
+        if self.current_level.finished:
             self.running = False
+            self.score += self.current_level.score
 
     def next_level(self):
         self.last_level_complete_time = self.current_level.complete_time

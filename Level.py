@@ -169,6 +169,8 @@ class Level:
                     self.ellipse.get_coordinates(angle),
                     distance
                 )
+                if not point:
+                    return
                 ball = Ball(point, shot.color)
                 angle = mathExt.get_angle(point)
                 cond = True
