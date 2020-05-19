@@ -8,67 +8,105 @@ from PyQt5.QtGui import QPainter, QPaintEvent, QFont, QPen, QColor, QPixmap,\
 from PyQt5.QtCore import Qt, QTimer
 import math
 
-from Level import Level
 from Ellipse import Ellipse
+from Level import Level
+from Game import Game
 import MathExtentions as mathExt
 
 
 class ViewControl(QWidget):
-    def __init__(self):
+    def __init__(self, file='level_description.txt'):
         super().__init__()
 
         self.text = 'Hello world!'
         self.width = 800
         self.height = 600
         self.setGeometry(100, 100, self.width, self.height)
-        self.ellipse = Ellipse(400, 600, 0, math.pi)
-        self.game = Level(self.ellipse, [1, 1, 0, 0, 0, 1])
         self.setWindowTitle('Zuma')
         # self.image = QtGui.QImage("Frog.jpg")
         self.image = QLabel(self)
         self.image.setAlignment(Qt.AlignCenter)
         self.pixmap = None
+        self.running = True
+
+        self.next_btn = None
+        self.initialise_button()
+
+        with open(file) as f:
+            self.game = Game.from_string_array(f.readlines())
 
         self.timer = self.startTimer(10)
 
         self.show()
 
+    @property
+    def ellipse(self) -> Ellipse:
+        return self.game.current_level.ellipse
+
+    @property
+    def current_level(self) -> Level:
+        return self.game.current_level
+
+    def initialise_button(self):
+        self.next_btn = QtWidgets.QPushButton('Next Level', self)
+
+        def next_pressed():
+            self.game.next_level()
+            self.next_btn.hide()
+
+        self.next_btn.clicked.connect(next_pressed)
+        self.next_btn.hide()
+
     def timerEvent(self, e):
         self.update()
         QApplication.processEvents()
-        self.game.go_next_state()
+        self.game.update()
 
     def keyPressEvent(self, event: QtGui.QKeyEvent):
+        current_level = self.current_level
+        if not current_level:
+            return
         if event.key() == 0x41:  # A
-            self.game.left = True
-            self.game.right = False
+            current_level.left = True
+            current_level.right = False
         elif event.key() == 0x44:  # D
-            self.game.right = True
-            self.game.left = False
+            current_level.right = True
+            current_level.left = False
         elif event.key() == 0x20:  # Space
-            self.game.shoot()
+            current_level.shoot()
 
     def keyReleaseEvent(self, event: QtGui.QKeyEvent):
+        current_level = self.current_level
+        if not current_level:
+            return
         if event.key() == 0x41:  # A
-            self.game.left = False
+            current_level.left = False
         elif event.key() == 0x44:  # D
-            self.game.right = False
+            current_level.right = False
 
     def wheelEvent(self, event: QtGui.QWheelEvent):
-        self.game.turn_turret(
-            self.game.turret_speed * event.angleDelta().y() / 50)
+        current_level = self.current_level
+        if not current_level:
+            return
+        current_level.turn_turret(
+            current_level.turret_speed * event.angleDelta().y() / 50)
 
     def mousePressEvent(self, event: QtGui.QMouseEvent):
+        current_level = self.current_level
+        if not current_level:
+            return
         if event.button() == Qt.LeftButton:
-            self.game.shoot()
+            current_level.shoot()
 
     def paintEvent(self, event: QPaintEvent):
         qp = QPainter()
         qp.begin(self)
 
-        if self.game.finished:
+        if self.game.over == 1:
+            self.draw_game_won(qp)
+        elif not self.game.running:
             self.draw_level_completed(qp)
-        elif self.game.hp > 0:
+        elif self.game.over == -1:
             self.draw_text(event, qp)
             self.draw_game(event, qp)
             self.draw_frog()
@@ -83,7 +121,7 @@ class ViewControl(QWidget):
         qp.drawText(
             QtCore.QRect(0, 0, 100, 60),
             Qt.AlignCenter,
-            f'HP: {self.game.hp}\nScore:{self.game.score}')
+            f'HP: {self.current_level.hp}\nScore:{self.current_level.score}')
 
     def draw_game(self, event, qp):
         self.draw_ellipse(event, qp)
@@ -101,25 +139,25 @@ class ViewControl(QWidget):
         self.pixmap = QPixmap('Frog.jpg')
         self.image.resize(self.pixmap.width() * math.sqrt(2),
                           self.pixmap.height() * math.sqrt(2))
-        self.image.move(self.width // 2 - self.game.turret[
+        self.image.move(self.width // 2 - self.current_level.turret[
             0] - self.image.width() // 2,
-                        self.height - self.game.turret[
+                        self.height - self.current_level.turret[
                             1] - self.image.height() // 2)
-        t = QTransform().rotate((self.game.turret_angle - math.pi / 2
+        t = QTransform().rotate((self.current_level.turret_angle - math.pi / 2
                                  ) / math.pi * 180)
 
         self.image.setPixmap(self.pixmap.transformed(t))
 
     def draw_balls(self, event, qp):
-        for ball in self.game.balls:
+        for ball in self.current_level.balls:
             self.draw_ball(qp,
                            ball.point,
-                           self.game.radius,
+                           self.current_level.radius,
                            QColor(*ball.color))
-        for shot in self.game.shots:
+        for shot in self.current_level.shots:
             self.draw_ball(qp,
                            (shot.x, shot.y),
-                           self.game.radius,
+                           self.current_level.radius,
                            QColor(*shot.color))
 
     def draw_game_over(self, qp: QPainter):
@@ -131,23 +169,32 @@ class ViewControl(QWidget):
         )
 
     def draw_level_completed(self, qp: QPainter):
+        self.next_btn.show()
         qp.setFont(QFont('Segoe UI', 30))
         qp.drawText(
             QtCore.QRect(0, 0, self.width, self.height),
             Qt.AlignCenter,
-            'Congratulation,\n you won in {:.2f} sec'.format(
-                self.game.complete_time)
+            'Congratulations,\n you won in {:.2f} sec'.format(
+                self.current_level.complete_time)
+        )
+
+    def draw_game_won(self, qp: QPainter):
+        qp.setFont(QFont('Segoe UI', 30))
+        qp.drawText(
+            QtCore.QRect(0, 0, self.width, self.height),
+            Qt.AlignCenter,
+            'Congratulations,\n you won the game!'
         )
 
     def debug_draw(self, qp: QPainter):
         start = mathExt.translate_point(
-            self.game.turret,
+            self.current_level.turret,
             self.width,
             self.height)
         end = mathExt.translate_point(
             self.ellipse.get_coordinates(
-                self.game.turret_angle,
-                self.game.turret),
+                self.current_level.turret_angle,
+                self.current_level.turret),
             self.width,
             self.height
         )
@@ -174,7 +221,10 @@ class ViewControl(QWidget):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 
-    widget = ViewControl()
+    if len(sys.argv) > 1:
+        widget = ViewControl(sys.argv[1])
+    else:
+        widget = ViewControl()
     widget.show()
 
     sys.exit(app.exec())

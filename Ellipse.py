@@ -4,6 +4,14 @@ from MathExtentions import get_distance, get_angle, \
 
 
 class Ellipse:
+    @staticmethod
+    def from_string(s: str):
+        args = list(map(int, s.split()))
+        return Ellipse(args[0],
+                       args[1],
+                       args[2] / 180 * math.pi,
+                       args[3] / 180 * math.pi)
+
     def __init__(self, width, height, start, finish):
         self.width = width
         self.height = height

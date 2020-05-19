@@ -39,8 +39,8 @@ class Level:
 
     @staticmethod
     def from_string_array(array: list):
-        ellipse = Ellipse(*map(int, array[0].split()))
-        balls = list(map(int, array[1].split))
+        ellipse = Ellipse.from_string(array[0])
+        balls = list(map(int, array[1].split()))
         return Level(ellipse, balls)
 
     def go_next_state(self):
