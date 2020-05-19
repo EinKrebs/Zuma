@@ -12,6 +12,9 @@ def sign(number):
 def get_angle(point):
     return math.atan2(point[1], point[0])
 
+def get_biased_angle(first, second):
+    return math.atan2(first[1] - second[1], first[0] - second[0])
+
 
 def get_distance(point1, point2):
     return math.sqrt(
@@ -31,6 +34,19 @@ def bin_search(start, finish, param, value):  # function growth
     return left
 
 
+def int_bin_search(start, finish, param, value):    # function growth
+    left = start
+    right = finish
+    while right - left > 1:
+        mid = (left + right) // 2
+        mid_value = param(mid)
+        if mid_value < value:
+            left = mid
+        else:
+            right = mid
+    return left if param(left) >= value else right
+
+
 def tern_search(start, finish, param):  # function looks like -x^2
     left = start
     right = finish
@@ -42,3 +58,19 @@ def tern_search(start, finish, param):  # function looks like -x^2
         else:
             right = mid_right
     return left
+
+
+def sqr(number):
+    return number * number
+
+
+def solve_square_poly(a, b, c):
+    discriminant = sqr(b) - 4 * a * c
+    if discriminant < 0:
+        return None, None
+    return ((-b - math.sqrt(discriminant)) / (2 * a),
+            (-b + math.sqrt(discriminant)) / (2 * a))
+
+
+def translate_point(point, width, height):
+    return [width // 2 - point[0], height - point[1]]

@@ -1,6 +1,6 @@
 import math
-from MathExtentions import get_distance, get_angle, sign,\
-    bin_search, tern_search
+from MathExtentions import get_distance, get_angle, \
+    bin_search, tern_search, sqr, solve_square_poly
 
 
 class Ellipse:
@@ -9,22 +9,23 @@ class Ellipse:
         self.height = height
         self.start = start
         self.finish = finish
+        self.start_point = self.get_coordinates(self.start)
+        self.finish_point = self.get_coordinates(self.finish)
 
     def __contains__(self, item):
         return item[1] >= -1e-6 and abs(
             (item[0] * item[0] / (self.width * self.width) + item[1] * item[
                 1] / (self.height * self.height)) - 1) < 1e-6
 
-    def get_coordinates(self, angle):
-        if angle == 0:
-            return self.width, 0
-        if angle == math.pi / 2:
-            return 0, self.height
-        if angle == math.pi:
-            return -self.width, 0
-        x = sign(math.cos(angle)) * self.width * self.height / math.sqrt(
-            self.height ** 2 + (self.width * math.tan(angle)) ** 2)
-        return x, math.tan(angle) * x
+    def get_coordinates(self, angle, point=(0, 0)):
+        x1, x2 = solve_square_poly(
+            sqr(self.height) + sqr(self.width * math.tan(angle)),
+            2 * point[1] * math.tan(angle) * sqr(self.width),
+            sqr(self.width) * (sqr(point[1]) - sqr(self.height)))
+        if angle < math.pi / 2 + 1e-6:
+            return x2, math.tan(angle) * x2 + point[1]
+        else:
+            return x1, math.tan(angle) * x1 + point[1]
 
     def next_point(self, point, distance):
         start = get_angle(point)
@@ -36,14 +37,32 @@ class Ellipse:
             self.get_coordinates(x), point), distance)
         angle2 = bin_search(middle, finish, lambda x: -get_distance(
             self.get_coordinates(x), point), distance)
-        if abs(get_distance(self.get_coordinates(angle1),
-                            point) - distance) < 1e-6:
+        dist1 = get_distance(self.get_coordinates(angle1), point)
+        dist2 = get_distance(self.get_coordinates(angle2), point)
+        if abs(dist1 - distance) < 1e-6:
             return self.get_coordinates(angle1)
-        if abs(get_distance(self.get_coordinates(angle2),
-                            point) - distance) < 1e-6:
+        if abs(dist2 - distance) < 1e-6:
             return self.get_coordinates(angle2)
         return None
 
     def is_space(self, last, radius):
         return get_distance(last,
                             self.get_coordinates(self.start)) > 3 * radius
+
+    def get_distance(self, angle1, angle2):
+        return get_distance(self.get_coordinates(angle1),
+                            self.get_coordinates(angle2))
+
+    def check_point_pre_started(self, point, distance):
+        point_angle = get_angle(point)
+        return (
+            point_angle < self.start
+            or get_distance(point, self.start_point) < distance
+        )
+
+    def check_point_finished(self, point, distance):
+        point_angle = get_angle(point)
+        return (
+            self.finish < point_angle
+            or get_distance(point, self.finish_point) < distance
+        )
