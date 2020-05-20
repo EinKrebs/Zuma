@@ -10,14 +10,18 @@ import MathExtentions as mathExt
 class Level:
     def __init__(self,
                  ellipse: Ellipse,
-                 balls: list):
+                 balls: list,
+                 radius=20,
+                 speed=1,
+                 shot_speed=150,
+                 turret=(0, 90)):
         self.colors = [(0, 0, 0), (0, 255, 0), (255, 0, 0), (0, 0, 255)]
         self.ellipse = ellipse
         self.next_balls = balls
-        self.radius = 20
-        self.speed = 1
-        self.shot_speed = 150
-        self.turret = (0, 90)
+        self.radius = radius
+        self.speed = speed
+        self.shot_speed = shot_speed
+        self.turret = turret
 
         self.balls = []
         self.shots = []
@@ -38,6 +42,8 @@ class Level:
         self.finished = False
 
         self.more_to_collapse = -1
+
+        self.add_balls = True
 
     @staticmethod
     def from_string_array(array: list):
@@ -67,7 +73,8 @@ class Level:
         self.remove_colors()
         if self.turret_ball >= len(self.colors):
             self.turret_ball -= 1
-        self.new_ball()
+        if self.add_balls:
+            self.new_ball()
         self.ping = max(self.ping - 1, 0)
 
     def move_balls_next_state(self, dist):

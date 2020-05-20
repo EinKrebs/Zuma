@@ -74,12 +74,13 @@ class GameTests(unittest.TestCase):
         ellipse = Ellipse(100, 100, 0, math.pi)
         game = Level(
             ellipse,
-            [],
+            [0],
             5,
             5,
             150,
             (0, 0)
         )
+        game.add_balls = False
         game.balls.append(
             Ball(
                 ellipse.next_point(ellipse.start_point,
@@ -124,11 +125,9 @@ class GameTests(unittest.TestCase):
         expected_new = ellipse.next_point(game.balls[0].point, 10)
         expected_old = game.balls[0].point
         game.turret_angle = shot_angle
-        game.turret_ball = 1
+        game.turret_ball = 0
         game.shoot()
         game.go_next_state()
-        self.assertTupleEqual(game.balls[0].color, game.colors[1])
-        self.assertTupleEqual(game.balls[1].color, game.colors[0])
         self.assertAlmostEqual(expected_new[0], game.balls[0].point[0], 4)
         self.assertAlmostEqual(expected_new[1], game.balls[0].point[1], 4)
         self.assertAlmostEqual(expected_old[0], game.balls[1].point[0], 4)
@@ -158,11 +157,9 @@ class GameTests(unittest.TestCase):
         )
         expected_old = ellipse.next_point(expected_new, 10)
         game.turret_angle = shot_angle
-        game.turret_ball = 1
+        game.turret_ball = 0
         game.shoot()
         game.go_next_state()
-        self.assertTupleEqual(game.balls[0].color, game.colors[0])
-        self.assertTupleEqual(game.balls[1].color, game.colors[1])
         self.assertAlmostEqual(expected_new[0], game.balls[1].point[0], 4)
         self.assertAlmostEqual(expected_new[1], game.balls[1].point[1], 4)
         self.assertAlmostEqual(expected_old[0], game.balls[0].point[0], 4)
@@ -171,7 +168,8 @@ class GameTests(unittest.TestCase):
     def test_collapsing_simple(self):
         ellipse = Ellipse(100, 100, 0, math.pi)
         radius = 5
-        game = Level(ellipse, [], radius, 0, 0, (0, 0))
+        game = Level(ellipse, [0, 1], radius, 0, 0, (0, 0))
+        game.add_balls = False
         game.balls.append(Ball(ellipse.get_coordinates(0.3, game.turret),
                                game.colors[0]))
         game.balls.insert(
@@ -195,7 +193,8 @@ class GameTests(unittest.TestCase):
     def test_multicollapsing(self):
         ellipse = Ellipse(1000, 1000, 0, math.pi)
         radius = 5
-        game = Level(ellipse, [], radius, 0, 0, (0, 0))
+        game = Level(ellipse, [0, 1], radius, 0, 0, (0, 0))
+        game.add_balls = False
         game.balls.append(Ball(ellipse.get_coordinates(0.3, game.turret),
                                game.colors[1]))
         game.balls.insert(
@@ -225,7 +224,4 @@ class GameTests(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    game_tests = GameTests()
-    ellipse_tests = EllipseTests()
-    ellipse_tests.test_get_coords()
-    ellipse_tests.test_next_point()
+    unittest.main()
