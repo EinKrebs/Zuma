@@ -1,5 +1,4 @@
 import math
-from MathExtentions import sqr
 
 
 class Shot:
@@ -17,9 +16,11 @@ class Shot:
     def is_intersection(self, ellipse):
         x = self.x + math.cos(self.angle) * self.speed
         y = self.y + math.sin(self.angle) * self.speed
-        return sqr(x) / sqr(ellipse.width) + sqr(y) / sqr(
-            ellipse.height) > 1 + 1e-6 > sqr(self.x) / sqr(
-            ellipse.width) + sqr(self.y) / sqr(ellipse.height)
+        return ((x ** 2 / ellipse.width ** 2
+                 + y ** 2 / ellipse.height ** 2)
+                > 1 + 1e-6 >
+                (self.x ** 2 / ellipse.width ** 2
+                 + self.y ** 2 / ellipse.height ** 2))
 
     def copy(self):
         return Shot(self.x, self.y, self.color, self.angle, self.speed)

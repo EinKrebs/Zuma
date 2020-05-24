@@ -12,6 +12,7 @@ def sign(number):
 def get_angle(point):
     return math.atan2(point[1], point[0])
 
+
 def get_biased_angle(first, second):
     return math.atan2(first[1] - second[1], first[0] - second[0])
 
@@ -60,12 +61,8 @@ def tern_search(start, finish, param):  # function looks like -x^2
     return left
 
 
-def sqr(number):
-    return number * number
-
-
 def solve_square_poly(a, b, c):
-    discriminant = sqr(b) - 4 * a * c
+    discriminant = b ** 2 - 4 * a * c
     if discriminant < 0:
         return None, None
     return ((-b - math.sqrt(discriminant)) / (2 * a),

@@ -130,8 +130,8 @@ class Level:
             condition = False
             if shot.is_intersection(self.ellipse):
                 condition = self.process_hit(self.shots[i])
-            if shot.x > self.ellipse.width + self.radius or shot.y > \
-                    self.ellipse.height + self.radius:
+            if (shot.x > self.ellipse.width + self.radius
+                    or shot.y > self.ellipse.height + self.radius):
                 condition = True
             if condition:
                 self.shots.pop(i)
@@ -217,11 +217,11 @@ class Level:
         return True
 
     def find_position(self, x):
-        ball_place = mathExt. \
-            int_bin_search(0,
-                           len(self.balls),
-                           lambda index: self.balls[index].point[0],
-                           x)
+        ball_place = mathExt.int_bin_search(
+            0,
+            len(self.balls),
+            lambda index: self.balls[index].point[0],
+            x)
         return ball_place
 
     def collapse(self):
@@ -260,15 +260,15 @@ class Level:
             self.balls[start + length].collapsing = True
             self.balls[start - 1].collapsing = True
             self.more_to_collapse = start - 1
-        self.color_count[self.get_color_number(self.balls[start].color)] -= length
+        self.color_count[
+            self.get_color_number(self.balls[start].color)] -= length
         for j in range(length):
             self.balls.pop(start)
 
-    def get_color_number(self, color):
-        i = 0
-        while self.colors[i] != color:
-            i += 1
-        return i
+    def get_color_number(self, needed_color):
+        for counter, value in enumerate(self.colors):
+            if value == needed_color:
+                return counter
 
     def remove_colors(self):
         i = 0

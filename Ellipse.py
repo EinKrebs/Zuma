@@ -1,6 +1,6 @@
 import math
-from MathExtentions import get_distance, get_angle, \
-    bin_search, tern_search, sqr, solve_square_poly
+from MathExtentions import (get_distance, get_angle, bin_search,
+                            tern_search, solve_square_poly)
 
 
 class Ellipse:
@@ -27,9 +27,9 @@ class Ellipse:
 
     def get_coordinates(self, angle, point=(0, 0)):
         x1, x2 = solve_square_poly(
-            sqr(self.height) + sqr(self.width * math.tan(angle)),
-            2 * point[1] * math.tan(angle) * sqr(self.width),
-            sqr(self.width) * (sqr(point[1]) - sqr(self.height)))
+            self.height ** 2 + (self.width * math.tan(angle)) ** 2,
+            2 * point[1] * math.tan(angle) * (self.width ** 2),
+            self.width ** 2 * ((point[1]) ** 2 - self.height ** 2))
         if angle < math.pi / 2 + 1e-6:
             return x2, math.tan(angle) * x2 + point[1]
         else:

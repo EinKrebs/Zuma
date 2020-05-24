@@ -29,6 +29,7 @@ class ViewControl(QWidget):
         self.image.setAlignment(Qt.AlignCenter)
         self.pixmap = None
         self.running = True
+        self.setFixedSize(self.width, self.height)
 
         self.p = None
         self.next_btn = None
@@ -237,15 +238,3 @@ class ViewControl(QWidget):
     def closeEvent(self, a0: QtGui.QCloseEvent):
         self.killTimer(self.timer)
         QtWidgets.qApp.quit()
-
-
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-
-    if len(sys.argv) > 1:
-        widget = ViewControl(sys.argv[1])
-    else:
-        widget = ViewControl()
-    widget.show()
-
-    sys.exit(app.exec())

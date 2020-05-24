@@ -174,11 +174,13 @@ class GameTests(unittest.TestCase):
                                game.colors[0]))
         game.balls.insert(
             0,
-            Ball(ellipse.next_point(game.balls[0].point, 2 * radius), game.colors[0])
+            Ball(ellipse.next_point(game.balls[0].point, 2 * radius),
+                 game.colors[0])
         )
         game.balls.insert(
             0,
-            Ball(ellipse.next_point(game.balls[0].point, 2 * radius), game.colors[0])
+            Ball(ellipse.next_point(game.balls[0].point, 2 * radius),
+                 game.colors[0])
         )
         ball = Ball(ellipse.next_point(game.balls[0].point, 2 * radius),
                     game.colors[1])
@@ -199,23 +201,28 @@ class GameTests(unittest.TestCase):
                                game.colors[1]))
         game.balls.insert(
             0,
-            Ball(ellipse.next_point(game.balls[0].point, 2 * radius), game.colors[0])
+            Ball(ellipse.next_point(game.balls[0].point, 2 * radius),
+                 game.colors[0])
         )
         game.balls.insert(
             0,
-            Ball(ellipse.next_point(game.balls[0].point, 2 * radius), game.colors[0])
+            Ball(ellipse.next_point(game.balls[0].point, 2 * radius),
+                 game.colors[0])
         )
         game.balls.insert(
             0,
-            Ball(ellipse.next_point(game.balls[0].point, 2 * radius), game.colors[0])
+            Ball(ellipse.next_point(game.balls[0].point, 2 * radius),
+                 game.colors[0])
         )
         game.balls.insert(
             0,
-            Ball(ellipse.next_point(game.balls[0].point, 2 * radius), game.colors[1])
+            Ball(ellipse.next_point(game.balls[0].point, 2 * radius),
+                 game.colors[1])
         )
         game.balls.insert(
             0,
-            Ball(ellipse.next_point(game.balls[0].point, 2 * radius), game.colors[1])
+            Ball(ellipse.next_point(game.balls[0].point, 2 * radius),
+                 game.colors[1])
         )
         game.balls[4].collapsing = True
         game.go_next_state()
