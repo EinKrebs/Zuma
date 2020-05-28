@@ -35,9 +35,10 @@ class Ellipse:
         else:
             return x1, math.tan(angle) * x1 + point[1]
 
-    def next_point(self, point, distance):
+    def next_point(self, point, distance, finish=None):
+        if not finish:
+            finish = self.finish
         start = get_angle(point)
-        finish = self.finish
         middle = tern_search(start, finish,
                              lambda x: get_distance(
                                  self.get_coordinates(x), point))
@@ -53,6 +54,21 @@ class Ellipse:
             return self.get_coordinates(angle2)
         return None
 
+    def previous_point(self, point, distance, start=None):
+        if not start:
+            start = self.start
+        angle = math.pi - get_angle(point)
+        rev_point = self.get_coordinates(angle)
+        rev_next_point = self.next_point(
+            rev_point,
+            distance,
+            finish=math.pi - start)
+        if not rev_next_point:
+            return None
+        previous_point = self.get_coordinates(
+            math.pi - get_angle(rev_next_point))
+        return previous_point
+
     def is_space(self, last, radius):
         return get_distance(last,
                             self.get_coordinates(self.start)) > 3 * radius
@@ -64,13 +80,13 @@ class Ellipse:
     def check_point_pre_started(self, point, distance):
         point_angle = get_angle(point)
         return (
-            point_angle < self.start
-            or get_distance(point, self.start_point) < distance
+                point_angle < self.start
+                or get_distance(point, self.start_point) < distance
         )
 
     def check_point_finished(self, point, distance):
         point_angle = get_angle(point)
         return (
-            self.finish < point_angle
-            or get_distance(point, self.finish_point) < distance
+                self.finish < point_angle
+                or get_distance(point, self.finish_point) < distance
         )

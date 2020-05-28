@@ -77,52 +77,6 @@ class Level:
             self.new_ball()
         self.ping = max(self.ping - 1, 0)
 
-    def move_balls_next_state(self, dist):
-        i = len(self.balls) - 1
-        distance = dist
-        while i >= 0:
-            self.move_ball(i, distance)
-            if i > 0:
-                distance = 2 * self.radius - mathExt.get_distance(
-                    self.balls[i].point,
-                    self.balls[i - 1].point
-                )
-            i -= 1
-
-    def move_balls_process_hit(self, index, dist):
-        i = index - 1
-        distance = dist
-        while i >= 0 and distance > 1e-6:
-            self.move_ball(i, distance)
-            if i > 0:
-                distance = 2 * self.radius - mathExt.get_distance(
-                    self.balls[i].point,
-                    self.balls[i - 1].point
-                )
-            i -= 1
-
-    def move_balls_collapse(self, index):
-        point = self.balls[index].point
-        for i in range(index - 1, -1, -1):
-            self.balls[i].point = \
-                self.ellipse.next_point(point, 2 * self.radius)
-            point = self.balls[i].point
-        self.more_to_collapse = -1
-
-    def move_ball(self, index, dist):
-        ball = self.balls[index]
-        next_point = self.ellipse.next_point(ball.point, dist)
-        if next_point is None:
-            # self.balls.pop(index)
-            return False
-        elif self.ellipse.check_point_finished(next_point, self.radius):
-            self.hp -= 1
-            self.balls.pop(index)
-            return False
-        else:
-            ball.point = next_point
-            return True
-
     def move_shots(self):
         i = 0
         while i < len(self.shots):
@@ -216,55 +170,6 @@ class Level:
             self.balls.insert(ball_place, ball)
         return True
 
-    def find_position(self, x):
-        ball_place = mathExt.int_bin_search(
-            0,
-            len(self.balls),
-            lambda index: self.balls[index].point[0],
-            x)
-        return ball_place
-
-    def collapse(self):
-        if len(self.balls) == 0:
-            return
-        if self.more_to_collapse != -1:
-            self.move_balls_collapse(self.more_to_collapse)
-        start = 0
-        length = 1
-        cond = self.balls[0].collapsing
-        color = self.balls[0].color
-        for i in range(1, len(self.balls)):
-            if self.balls[i].color != color:
-                if length >= 3 and cond:
-                    self.remove_collapsing(length, start)
-                    return
-                else:
-                    start = i
-                    length = 1
-                    color = self.balls[i].color
-                    cond = self.balls[i].collapsing
-            else:
-                cond = cond or self.balls[i].collapsing
-                length += 1
-        if length >= 3 and cond:
-            self.remove_collapsing(length, start)
-
-    def remove_collapsing(self, length, start):
-        self.score += 3 ** (length - 2)
-        if (
-                start > 0
-                and start + length < len(self.balls)
-                and self.balls[start - 1].color
-                == self.balls[start + length].color
-        ):
-            self.balls[start + length].collapsing = True
-            self.balls[start - 1].collapsing = True
-            self.more_to_collapse = start - 1
-        self.color_count[
-            self.get_color_number(self.balls[start].color)] -= length
-        for j in range(length):
-            self.balls.pop(start)
-
     def get_color_number(self, needed_color):
         for counter, value in enumerate(self.colors):
             if value == needed_color:
@@ -278,3 +183,11 @@ class Level:
                 self.colors.pop(i)
             else:
                 i += 1
+
+    def find_position(self, x):
+        ball_place = mathExt.int_bin_search(
+            0,
+            len(self.balls),
+            lambda index: self.balls[index].point[0],
+            x)
+        return ball_place
