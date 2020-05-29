@@ -13,6 +13,9 @@ class Sequence:
         self.right = self.get_right()
         self.more_to_collapse = -1
 
+    def __len__(self):
+        return len(self.balls)
+
     def get_right(self):
         return self.ellipse.next_point(
             self.balls[0].point,

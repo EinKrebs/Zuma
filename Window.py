@@ -153,7 +153,7 @@ class ViewControl(QWidget):
                                  ) / math.pi * 180)
 
         self.image.setPixmap(self.pixmap.transformed(t))
-        if len(self.current_level.colors) == 0:
+        if len(self.current_level.current_colors) == 0:
             return
         transform = qp.transform()
         qp.translate(
@@ -163,7 +163,7 @@ class ViewControl(QWidget):
                 1])
         qp.rotate(self.current_level.turret_angle / math.pi * 180)
         qp.setBrush(
-            QColor(*self.current_level.colors[
+            QColor(*self.current_level.current_colors[
                 self.current_level.turret_ball]))
         qp.drawEllipse(QtCore.QPoint(0, 0), 2, 2)
         qp.drawEllipse(QtCore.QPointF(38, 0), 19, 17)
