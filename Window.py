@@ -1,22 +1,22 @@
-import sys
+import math
 from threading import Thread
-from PyQt5 import QtWidgets
-from PyQt5 import QtGui
+
 from PyQt5 import QtCore
-from PyQt5.QtWidgets import QWidget, QApplication, QLabel
+from PyQt5 import QtGui
+from PyQt5 import QtWidgets
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPainter, QPaintEvent, QFont, QPen, QColor, QPixmap, \
     QTransform
-from PyQt5.QtCore import Qt, QTimer
-import math
+from PyQt5.QtWidgets import QWidget, QApplication, QLabel
 
-from Ellipse import Ellipse
-from Level import Level
-from Game import Game
 import MathExtentions as mathExt
+from Ellipse import Ellipse
+from Game import Game
+from Level import Level
 
 
 class ViewControl(QWidget):
-    def __init__(self, file='level_description.txt'):
+    def __init__(self, directory='levels'):
         super().__init__()
 
         self.text = 'Hello world!'
@@ -24,7 +24,6 @@ class ViewControl(QWidget):
         self.height = 600
         self.setGeometry(100, 100, self.width, self.height)
         self.setWindowTitle('Zuma')
-        # self.image = QtGui.QImage("Frog.jpg")
         self.image = QLabel(self)
         self.image.setAlignment(Qt.AlignCenter)
         self.pixmap = None
@@ -35,8 +34,7 @@ class ViewControl(QWidget):
         self.next_btn = None
         self.initialise_button()
 
-        with open(file) as f:
-            self.game = Game.from_string_array(f.readlines())
+        self.game = Game.from_directory(directory)
 
         self.timer = self.startTimer(10)
 
@@ -113,8 +111,8 @@ class ViewControl(QWidget):
         elif not self.game.running:
             self.draw_level_completed(qp)
         elif self.game.over == -1:
-            self.draw_stats(event, qp)
-            self.draw_game(event, qp)
+            self.draw_stats(qp)
+            self.draw_game(qp)
             self.draw_frog(qp)
             self.debug_draw(qp)
         else:
@@ -122,18 +120,20 @@ class ViewControl(QWidget):
 
         qp.end()
 
-    def draw_stats(self, event, qp):
+    def draw_stats(self, qp):
         qp.setFont(QFont('Segoe UI', 16))
         qp.drawText(
-            QtCore.QRect(0, 0, 100, 60),
+            QtCore.QRect(0, 0, 200, 200),
             Qt.AlignCenter,
-            f'HP: {self.current_level.hp}\nScore:{self.current_level.score}')
+            f'HP: {self.current_level.hp}\n'
+            f'Score:{self.current_level.score}'
+            f'time:{self.current_level.get_current_time()}')
 
-    def draw_game(self, event, qp):
-        self.draw_ellipse(event, qp)
-        self.draw_balls(event, qp)
+    def draw_game(self, qp):
+        self.draw_ellipse(qp)
+        self.draw_balls(qp)
 
-    def draw_ellipse(self, event, qp):
+    def draw_ellipse(self, qp):
         pen = QPen(QColor(0, 0, 0), 4, Qt.SolidLine)
         qp.setPen(pen)
         size = self.size()
@@ -169,7 +169,7 @@ class ViewControl(QWidget):
         qp.drawEllipse(QtCore.QPointF(38, 0), 19, 17)
         qp.setTransform(transform)
 
-    def draw_balls(self, event, qp):
+    def draw_balls(self, qp):
         for ball in self.current_level.balls:
             self.draw_ball(qp,
                            ball.point,

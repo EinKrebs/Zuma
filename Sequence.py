@@ -31,12 +31,17 @@ class Sequence:
         )
 
     def move(self, distance, index=None):
+        if len(self.balls) == 0:
+            return 0
         count = 0
         if index is None:
             index = len(self.balls)
         if index == len(self.balls):
             index -= 1
-            self.left = self.ellipse.next_point(self.left, distance)
+            self.left = self.ellipse.next_point(
+                self.left,
+                distance,
+                finish=math.pi + 1)
         while index >= 0:
             ball = self.balls[index]
             new_point = self.ellipse.next_point(ball.point, distance)
@@ -58,9 +63,13 @@ class Sequence:
         return count
 
     def add_ball(self, color):
-        if mathExt.get_angle(self.left) < self.ellipse.start:
-            raise ValueError
-        point = self.left
+        if len(self.balls) == 0:
+            point = self.ellipse.next_point(self.ellipse.start_point,
+                                            self.radius)
+        else:
+            if mathExt.get_angle(self.left) < self.ellipse.start:
+                raise ValueError
+            point = self.left
         self.balls.append(Ball(point, color))
         self.left = self.get_left()
 
@@ -118,7 +127,7 @@ class Sequence:
 
     def collapse(self):
         if len(self.balls) == 0:
-            return
+            return 0, (0, 0, 0), 0
         if self.more_to_collapse != -1:
             self.move_balls_collapse(self.more_to_collapse)
         start = 0

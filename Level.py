@@ -35,7 +35,7 @@ class Level:
         self.shots = []
         self.turret_angle = math.pi / 2
         self.color_count = []
-        self.turret_ball = random.randint(0, len(self.current_colors) - 1)
+        self.turret_ball = -1
         self.turret_speed = 0.02
         self.left = False
         self.right = False
@@ -53,14 +53,20 @@ class Level:
         self.add_balls = True
 
     @staticmethod
-    def from_string_array(array: list):
+    def from_file(file: str):
+        with open(file) as f:
+            array = f.readlines()
         ellipse = Ellipse.from_string(array[0])
         times = []
         sequences = []
         for i in range(1, len(array)):
-            times.append(array[i][0])
-            sequences.append(array[i][1:])
+            line = list(map(int, array[i].split()))
+            times.append(line[0])
+            sequences.append(line[1:])
         return Level(ellipse, sequences, times)
+
+    def start(self):
+        self.start_time = time.time()
 
     def go_next_state(self):
         if self.finished or self.hp <= 0:
@@ -75,8 +81,13 @@ class Level:
         self.update_sequences()
         self.move_balls_next_state(self.speed)
         self.move_shots()
-        self.collapse()
+        self.score += self.collapse()
         self.new_ball()
+        if self.turret_ball == -1:
+            self.turret_ball = random.randint(
+                0,
+                max(len(self.current_colors) - 1, 0)
+            )
         while self.turret_ball >= len(self.current_colors):
             self.turret_ball -= 1
         self.ping = max(self.ping - 1, 0)
@@ -97,18 +108,31 @@ class Level:
             if (shot.x > self.ellipse.width + self.radius
                     or shot.y > self.ellipse.height + self.radius):
                 condition = True
+                self.remove_color(shot.color)
             if condition:
                 self.shots.pop(i)
             else:
                 shot.update()
                 i += 1
 
+    def process_hit(self, shot):
+        cond = False
+        intersection = self.ellipse.get_coordinates(shot.angle, self.turret)
+        intersection_angle = mathExt.get_angle(intersection)
+        for sequence in self.sequences:
+            if (mathExt.get_angle(sequence.left) <= intersection_angle
+                    <= mathExt.get_angle(sequence.right)):
+                sequence.insert_ball(intersection, shot.color)
+                cond = True
+        return cond
+
     def collapse(self):
         score = 0
         for sequence in self.sequences:
             length, color, score = sequence.collapse()
             score += score
-            self.remove_color(color, count=length)
+            if length != 0:
+                self.remove_color(color, count=length)
         return score
 
     def update_sequences(self):
@@ -120,15 +144,14 @@ class Level:
             self.next_sequences.pop()
             self.current_time_offset = self.times[-1]
             self.times.pop()
-        i = len(self.sequences)
+        i = len(self.sequences) - 1
         while i >= 0:
             sequence = self.sequences[i]
             if (len(sequence) == 0
-                    and (i < len(self.sequences) - 1)
-                    or len(self.current_sequence_next) == 0):
+                    and ((i < len(self.sequences) - 1)
+                    or len(self.current_sequence_next) == 0)):
                 self.sequences.pop(i)
-            else:
-                i -= 1
+            i -= 1
 
     def move_balls_next_state(self, distance):
         for sequence in self.sequences:
@@ -160,11 +183,13 @@ class Level:
             if (mathExt.get_angle(self.sequences[-1].left) >
                 mathExt.get_angle(self.ellipse.next_point(
                     self.ellipse.start_point,
-                    self.radius))):
+                    self.radius))
+                    or len(self.sequences[-1].balls) == 0):
                 color = self.colors[self.current_sequence_next[-1]]
                 self.add_color(color)
                 self.sequences[-1].add_ball(color)
                 self.current_sequence_next.pop()
+                return
 
     def get_current_time(self):
         return time.time() - self.start_time
@@ -189,18 +214,6 @@ class Level:
         if self.turret_angle > math.pi:
             self.turret_angle = math.pi
 
-    def process_hit(self, shot):
-        cond = False
-        intersection = self.ellipse.get_coordinates(shot.angle, self.turret)
-        intersection_angle = mathExt.get_angle(intersection)
-        for sequence in self.sequences:
-            if (mathExt.get_angle(sequence.left) <= intersection_angle
-                    <= mathExt.get_angle(sequence.right)):
-                sequence.insert_ball(intersection, shot.color)
-                self.add_color(shot.color)
-                cond = True
-        return cond
-
     def add_color(self, color):
         if self.get_color_number(color) == -1:
             self.current_colors.append(color)
@@ -222,3 +235,10 @@ class Level:
             if value == needed_color:
                 return counter
         return -1
+
+    @property
+    def balls(self):
+        balls = []
+        for sequence in self.sequences:
+            balls += sequence.balls
+        return balls

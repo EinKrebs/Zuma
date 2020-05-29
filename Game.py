@@ -1,4 +1,5 @@
 from Level import Level
+import os
 
 
 class Game:
@@ -14,17 +15,10 @@ class Game:
         self.score = 0
 
     @staticmethod
-    def from_string_array(array):
-        length = len(array)
-        levels = []
-        if length % 2 != 0:
-            raise ValueError
-        for i in range(length // 2):
-            levels.append(
-                Level.from_string_array([
-                    array[2 * i][:-1],
-                    array[2 * i + 1][:-1]])
-            )
+    def from_directory(directory):
+        levels = [
+            Level.from_file(os.path.join(directory, file))
+            for file in os.listdir(directory)]
         return Game(levels)
 
     @property
@@ -49,4 +43,6 @@ class Game:
         self.current_level_index += 1
         if self.current_level_index >= len(self.levels):
             self.over = 1
+        else:
+            self.current_level.start()
         self.running = True
