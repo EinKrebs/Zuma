@@ -6,6 +6,7 @@ import time
 from Shot import Shot
 from Ellipse import Ellipse
 from Level import Level
+from Game import Game
 from Ball import Ball
 from Sequence import Sequence
 from MathExtentions import get_distance
@@ -54,6 +55,22 @@ class EllipseTests(unittest.TestCase):
         height = random.randint(1, 100)
         ellipse = Ellipse(width, height, start, finish)
         return start, finish, width, height, ellipse
+
+    def test_from_string(self):
+        random.seed = 100
+        for repeat in range(10000):
+            width = random.randint(1, 400)
+            height = random.randint(1, 400)
+            start = random.randint(0, 179)
+            finish = random.randint(start, 180)
+            ellipse = Ellipse.from_string(f'{width} {height} '
+                                          f'{start} {finish}')
+            self.assertEqual(ellipse.width, width)
+            self.assertEqual(ellipse.height, height)
+            self.assertAlmostEqual(ellipse.start / math.pi * 180,
+                                   start)
+            self.assertAlmostEqual(ellipse.finish / math.pi * 180,
+                                   finish)
 
     def test_get_coords(self):
         for repeat in range(100000):
@@ -258,6 +275,14 @@ class SequenceTests(unittest.TestCase):
 
 
 class LevelTest(unittest.TestCase):
+    def test_from_file(self):
+        level = Level.from_file('test_levels\\test_level1.txt')
+        self.assertListEqual(level.times, [10, 0])
+        self.assertListEqual(level.next_sequences,
+                             [[0, 0, 0, 1, 0],
+                              [1, 0, 0, 0, 0]])
+        self.assertIsNone(level.current_sequence_next)
+
     def test_shot_first(self):
         ellipse = Ellipse(100, 100, 0, math.pi)
         level = Level(
@@ -366,6 +391,72 @@ class LevelTest(unittest.TestCase):
         self.assertTrue(level.finished)
         self.assertEqual(level.score, 3)
         self.assertEqual(len(level.color_count), 0)
+        
+        
+class GameTests(unittest.TestCase):
+    @staticmethod
+    def two_dim_lists_equal(first, second, param):
+        cond = len(first) == len(second)
+        if cond:
+            for i in range(len(first)):
+                cond1 = (len(param(first[i]))
+                         == len(param(second[i])))
+                if cond1:
+                    for j in range(len(param(first[i]))):
+                        cond1 = (cond1
+                                 and param(first[i])[j]
+                                 == param(second[i])[j])
+                cond = cond and cond1
+        return cond
+
+    @staticmethod
+    def level_equals(first: Level, second: Level):
+        cond = GameTests.two_dim_lists_equal(first.sequences,
+                                             second.sequences,
+                                             lambda x: x.balls)
+        cond = cond and GameTests.two_dim_lists_equal(
+            first.next_sequences,
+            second.next_sequences,
+            lambda x: x
+        )
+        if not cond:
+            return cond
+        if ((first.current_sequence_next is None
+                and second.current_sequence_next is not None)
+                or (first.current_sequence_next is not None
+                    and second.current_sequence_next is None)):
+            return False
+        if first.current_sequence_next is None:
+            return True
+        if (len(first.current_sequence_next)
+                != len(second.current_sequence_next)):
+            return False
+        for i in range(len(first.current_sequence_next)):
+            if (first.current_sequence_next[i]
+                    != second.current_sequence_next[i]):
+                return False
+        return True
+    
+    def test_general(self):
+        game = Game.from_directory('test_levels')
+        level = Level.from_file('test_levels\\test_level1.txt')
+        self.assertTrue(self.level_equals(level, game.current_level))
+        game.update()
+        level.go_next_state()
+        self.assertTrue(self.level_equals(level, game.current_level))
+        game.current_level.finished = True
+        game.update()
+        self.assertTrue(self.level_equals(level, game.current_level))
+        game.current_level.hp = 0
+        game.current_level.finished = False
+        game.update()
+        self.assertTrue(self.level_equals(level, game.current_level))
+        game.next_level()
+        level = Level.from_file('test_levels\\test_level2.txt')
+        self.assertTrue(self.level_equals(level, game.current_level))
+        game.next_level()
+        self.assertEqual(game.over, 1)
+        self.assertIsNone(game.current_level)
 
 
 if __name__ == '__main__':
