@@ -123,11 +123,10 @@ class ViewControl(QWidget):
     def draw_stats(self, qp):
         qp.setFont(QFont('Segoe UI', 16))
         qp.drawText(
-            QtCore.QRect(0, 0, 200, 200),
+            QtCore.QRect(0, 0, 100, 100),
             Qt.AlignCenter,
             f'HP: {self.current_level.hp}\n'
-            f'Score:{self.current_level.score}'
-            f'time:{self.current_level.get_current_time()}')
+            f'Score:{self.current_level.score}')
 
     def draw_game(self, qp):
         self.draw_ellipse(qp)
@@ -209,6 +208,8 @@ class ViewControl(QWidget):
         )
 
     def debug_draw(self, qp: QPainter):
+        pen = QPen(QColor(0, 0, 0), 4, Qt.SolidLine)
+        qp.setPen(pen)
         start = mathExt.translate_point(
             self.current_level.turret,
             self.width,
