@@ -35,15 +35,12 @@ class Sequence:
             return 0
         count = 0
         if index is None:
-            index = len(self.balls)
-        if index == len(self.balls):
-            index -= 1
-            self.left = self.ellipse.next_point(
-                self.left,
-                distance,
-                finish=math.pi + 1)
+            index = len(self.balls) - 1
         while index >= 0:
-            ball = self.balls[index]
+            try:
+                ball = self.balls[index]
+            except IndexError:
+                print('fuck!')
             new_point = self.ellipse.next_point(ball.point, distance)
             if new_point is None:
                 self.balls.pop(index)
@@ -56,10 +53,11 @@ class Sequence:
                             self.balls[index].point,
                             self.balls[index - 1].point),
                         0)
-                index -= 1
+            index -= 1
 
         if len(self.balls) > 0:
             self.right = self.get_right()
+            self.left = self.get_left()
         return count
 
     def add_ball(self, color):

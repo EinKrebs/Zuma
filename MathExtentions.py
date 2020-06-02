@@ -35,7 +35,7 @@ def bin_search(start, finish, param, value):  # function growth
     return left
 
 
-def int_bin_search(start, finish, param, value):    # function growth
+def int_bin_search(start, finish, param, value):  # function growth
     left = start
     right = finish
     while right - left > 1:
@@ -71,3 +71,11 @@ def solve_square_poly(a, b, c):
 
 def translate_point(point, width, height):
     return [width // 2 - point[0], height - point[1]]
+
+
+def normalise_angle(angle):
+    if angle < -math.pi / 2:
+        angle += 2 * math.pi
+    if angle > 3 * math.pi / 2:
+        angle -= 2 * math.pi
+    return angle

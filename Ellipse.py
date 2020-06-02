@@ -1,4 +1,5 @@
 import math
+import MathExtentions as mathExt
 from MathExtentions import (get_distance, get_angle, bin_search,
                             tern_search, solve_square_poly)
 
@@ -66,7 +67,7 @@ class Ellipse:
         if not rev_next_point:
             return None
         previous_point = self.get_coordinates(
-            math.pi - get_angle(rev_next_point))
+            mathExt.normalise_angle(math.pi - get_angle(rev_next_point)))
         return previous_point
 
     def is_space(self, last, radius):

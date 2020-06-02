@@ -73,7 +73,8 @@ class Level:
             return
         if (len(self.sequences) == 0
                 and len(self.next_sequences) == 0
-                and len(self.current_sequence_next) == 0):
+                and (self.current_sequence_next is None
+                     or len(self.current_sequence_next) == 0)):
             self.finished = True
             self.complete_time = time.time() - self.start_time
 
@@ -129,8 +130,8 @@ class Level:
     def collapse(self):
         score = 0
         for sequence in self.sequences:
-            length, color, score = sequence.collapse()
-            score += score
+            length, color, seq_score = sequence.collapse()
+            score += seq_score
             if length != 0:
                 self.remove_color(color, count=length)
         return score
@@ -148,8 +149,8 @@ class Level:
         while i >= 0:
             sequence = self.sequences[i]
             if (len(sequence) == 0
-                    and ((i < len(self.sequences) - 1)
-                    or len(self.current_sequence_next) == 0)):
+                    and (i < len(self.sequences) - 1
+                         or len(self.current_sequence_next) == 0)):
                 self.sequences.pop(i)
             i -= 1
 
@@ -176,6 +177,7 @@ class Level:
                     self.radius
                 )
                 self.sequences.append(sequence)
+                self.current_sequence_next.pop()
                 self.current_sequence_started = True
 
                 self.add_color(ball.color)

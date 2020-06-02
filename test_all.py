@@ -1,13 +1,47 @@
 import random
 import unittest
 import math
+import time
 
+from Shot import Shot
 from Ellipse import Ellipse
 from Level import Level
 from Ball import Ball
 from Sequence import Sequence
 from MathExtentions import get_distance
 import MathExtentions as mathExt
+
+
+class ShotTest(unittest.TestCase):
+    def test_update(self):
+        random.seed = 100
+        for repeat in range(100000):
+            x = random.random()
+            y = random.random()
+            speed = random.random() % 100
+            angle = random.random() % (2 * math.pi)
+            shot = Shot(x, y, None, angle, speed)
+            shot.update()
+            x1 = shot.x
+            y1 = shot.y
+            self.assertAlmostEqual(mathExt.get_angle((x1 - x, y1 - y)), angle)
+            self.assertAlmostEqual(
+                mathExt.get_distance(
+                    (x1, y1),
+                    (x, y)),
+                speed
+            )
+
+    def test_is_intersection(self):
+        random.seed = 100
+        ellipse = Ellipse(100, 50, 0, math.pi)
+        x = 0
+        y = 0
+        for i in range(100000):
+            angle = math.pi / 100000 * i
+            speed = random.random() % 200
+            shot = Shot(x, y, None, angle, speed)
+            self.assertEqual(speed > 100.01, shot.is_intersection(ellipse))
 
 
 class EllipseTests(unittest.TestCase):
@@ -93,69 +127,26 @@ class EllipseTests(unittest.TestCase):
                                 f" {dist}, {radius}")
 
 
-class LevelTest(unittest.TestCase):
-    def test_shot_first(self):
-        ellipse = Ellipse(100, 100, 0, math.pi)
-        game = Level(
-            ellipse,
-            [0],
-            5,
-            50,
-            150,
-            (0, 0)
-        )
-        game.go_next_state()
-        game.go_next_state()
-        game.speed = 0
-        shot_angle = mathExt.get_biased_angle(
-            game.balls[0].point,
-            game.turret
-        ) + 0.1
-        expected_new = ellipse.next_point(game.balls[0].point, 10)
-        expected_old = game.balls[0].point
-        game.turret_angle = shot_angle
-        game.turret_ball = 0
-        game.shoot()
-        game.go_next_state()
-        self.assertAlmostEqual(expected_new[0], game.balls[0].point[0], 4)
-        self.assertAlmostEqual(expected_new[1], game.balls[0].point[1], 4)
-        self.assertAlmostEqual(expected_old[0], game.balls[1].point[0], 4)
-        self.assertAlmostEqual(expected_old[1], game.balls[1].point[1], 4)
-
-    def test_shot_last(self):
-        ellipse = Ellipse(100, 100, 0, math.pi)
-        game = Level(
-            ellipse,
-            [0],
-            5,
-            50,
-            150,
-            (0, 0)
-        )
-        game.go_next_state()
-        game.go_next_state()
-        game.go_next_state()
-        game.speed = 0
-        shot_angle = mathExt.get_biased_angle(
-            game.balls[0].point,
-            game.turret
-        ) - 0.1
-        expected_new = ellipse.get_coordinates(
-            shot_angle,
-            game.turret
-        )
-        expected_old = ellipse.next_point(expected_new, 10)
-        game.turret_angle = shot_angle
-        game.turret_ball = 0
-        game.shoot()
-        game.go_next_state()
-        self.assertAlmostEqual(expected_new[0], game.balls[1].point[0], 4)
-        self.assertAlmostEqual(expected_new[1], game.balls[1].point[1], 4)
-        self.assertAlmostEqual(expected_old[0], game.balls[0].point[0], 4)
-        self.assertAlmostEqual(expected_old[1], game.balls[0].point[1], 4)
-
-
 class SequenceTests(unittest.TestCase):
+    def test_get_left(self):
+        ellipse = Ellipse(100, 100, 0, math.pi)
+        radius = 5
+        ball = Ball(ellipse.next_point(ellipse.start_point, radius),
+                    (0, 0, 0))
+        sequence = Sequence(ball, ellipse, radius)
+        self.assertEqual(sequence.left, ellipse.previous_point(
+            sequence.balls[0].point,
+            2 * radius,
+            start=-1.5
+        ))
+        self.assertAlmostEqual(
+            mathExt.get_distance(
+                sequence.balls[0].point,
+                sequence.left),
+            2 * radius,
+            delta=1e-4
+        )
+
     def test_add_ball(self):
         ellipse = Ellipse(100, 100, 0, math.pi)
         ball = Ball(
@@ -264,6 +255,117 @@ class SequenceTests(unittest.TestCase):
         score += sequence.collapse()[2]
         self.assertEqual(len(sequence.balls), 1)
         self.assertEqual(score, 6)
+
+
+class LevelTest(unittest.TestCase):
+    def test_shot_first(self):
+        ellipse = Ellipse(100, 100, 0, math.pi)
+        level = Level(
+            ellipse,
+            [[0]],
+            [0],
+            5,
+            50,
+            150,
+            (0, 0)
+        )
+        time.sleep(1)
+        level.go_next_state()
+        level.go_next_state()
+        level.speed = 0
+        shot_angle = mathExt.get_biased_angle(
+            level.sequences[0].balls[0].point,
+            level.turret
+        ) + 0.1
+        expected_new = ellipse.next_point(level.balls[0].point, 10)
+        expected_old = level.balls[0].point
+        level.turret_angle = shot_angle
+        level.turret_ball = 0
+        level.shoot()
+        level.go_next_state()
+        self.assertAlmostEqual(expected_new[0], level.balls[0].point[0], 4)
+        self.assertAlmostEqual(expected_new[1], level.balls[0].point[1], 4)
+        self.assertAlmostEqual(expected_old[0], level.balls[1].point[0], 4)
+        self.assertAlmostEqual(expected_old[1], level.balls[1].point[1], 4)
+
+    def test_shot_last(self):
+        ellipse = Ellipse(100, 100, 0, math.pi)
+        level = Level(
+            ellipse,
+            [[0]],
+            [0],
+            5,
+            50,
+            150,
+            (0, 0)
+        )
+        time.sleep(1)
+        level.go_next_state()
+        level.go_next_state()
+        level.go_next_state()
+        level.speed = 0
+        shot_angle = mathExt.get_biased_angle(
+            level.balls[0].point,
+            level.turret
+        ) - 0.1
+        expected_new = ellipse.get_coordinates(
+            shot_angle,
+            level.turret
+        )
+        expected_old = ellipse.next_point(expected_new, 10)
+        level.turret_angle = shot_angle
+        level.turret_ball = 0
+        level.shoot()
+        level.go_next_state()
+        self.assertAlmostEqual(expected_new[0], level.balls[1].point[0], 2)
+        self.assertAlmostEqual(expected_new[1], level.balls[1].point[1], 2)
+        self.assertAlmostEqual(expected_old[0], level.balls[0].point[0], 2)
+        self.assertAlmostEqual(expected_old[1], level.balls[0].point[1], 2)
+
+    def test_fail(self):
+        ellipse = Ellipse(100, 50, 0, math.pi)
+        level = Level(ellipse, [[0, 0, 0]], [0], radius=10, speed=100)
+        time.sleep(1)
+        for i in range(1000):
+            level.go_next_state()
+        self.assertEqual(level.hp, 0)
+
+    def test_turret(self):
+        ellipse = Ellipse(100, 50, 0, math.pi)
+        level = Level(ellipse, [[0]], [0], radius=10, speed=0)
+        level.left = True
+        self.assertAlmostEqual(level.turret_angle, math.pi / 2)
+        for i in range(50):
+            level.go_next_state()
+        self.assertAlmostEqual(level.turret_angle, math.pi / 2 - 1)
+        level.left = False
+        level.right = True
+        for i in range(100):
+            level.go_next_state()
+        self.assertAlmostEqual(level.turret_angle, math.pi / 2 + 1)
+
+    def test_collapse(self):
+        ellipse = Ellipse(200, 100, 0, math.pi)
+        level = Level(ellipse, [[0, 0]], [0],
+                      radius=10, speed=10, shot_speed=250)
+        time.sleep(1)
+        for i in range(4):
+            level.go_next_state()
+        self.assertEqual(len(level.balls), 2)
+        self.assertEqual(len(level.color_count), 1)
+        self.assertEqual(level.color_count[0], 2)
+        level.turret_angle = mathExt.get_biased_angle(
+            level.balls[1].point,
+            level.turret) + 0.1
+        level.speed = 0
+        level.shoot()
+        level.go_next_state()
+        level.go_next_state()
+        level.go_next_state()
+        self.assertEqual(len(level.balls), 0)
+        self.assertTrue(level.finished)
+        self.assertEqual(level.score, 3)
+        self.assertEqual(len(level.color_count), 0)
 
 
 if __name__ == '__main__':
