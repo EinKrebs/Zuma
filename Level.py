@@ -153,8 +153,8 @@ class Level:
             self.speed = self.std_speed
 
     def process_event(self, length):
-        if random.randint(1, 50) <= 50:  # length:
-            if random.randint(1, 20) <= 20:  # == 1:
+        if random.randint(1, 50) <= length:
+            if random.randint(1, 20) == 1:
                 self.add_super_shots()
             else:
                 if self.timer is not None:
