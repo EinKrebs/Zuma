@@ -144,7 +144,7 @@ class Level:
     def change_speed(self):
         if self.timer is None:
             return
-        if time.time() - self.timer > 1:
+        if time.time() - self.timer > 5:
             self.speed = self.std_speed
 
     def process_event(self, length):
