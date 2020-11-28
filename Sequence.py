@@ -123,7 +123,7 @@ class Sequence:
         self.more_to_collapse = -1
         self.right = self.get_right()
 
-    def collapse(self):
+    def collapse(self, speed):
         if len(self.balls) == 0:
             return 0, (0, 0, 0), 0
         if self.more_to_collapse != -1:
@@ -135,7 +135,7 @@ class Sequence:
         for i in range(1, len(self.balls)):
             if self.balls[i].color != color:
                 if length >= 3 and cond:
-                    score = self.remove_collapsing(length, start)
+                    score = self.remove_collapsing(length, start, speed)
                     return length, color, score
                 else:
                     start = i
@@ -146,12 +146,12 @@ class Sequence:
                 cond = cond or self.balls[i].collapsing
                 length += 1
         if length >= 3 and cond:
-            score = self.remove_collapsing(length, start)
+            score = self.remove_collapsing(length, start, speed)
             return length, color, score
         return 0, (0, 0, 0), 0
 
-    def remove_collapsing(self, length, start):
-        score = 3 ** (length - 2)
+    def remove_collapsing(self, length, start, speed):
+        score = 3 ** (length - 2) * math.sqrt(speed)
         if (
                 start > 0
                 and start + length < len(self.balls)

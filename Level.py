@@ -134,12 +134,18 @@ class Level:
     def collapse(self):
         score = 0
         for sequence in self.sequences:
-            length, color, seq_score = sequence.collapse()
+            length, color, seq_score = sequence.collapse(self.speed)
             score += seq_score
             if length != 0:
                 self.process_event(length)
                 self.remove_color(color, count=length)
         return score
+
+    def change_speed(self):
+        if self.timer is None:
+            return
+        if time.time() - self.timer > 1:
+            self.speed = self.std_speed
 
     def process_event(self, length):
         if random.randint(1, 50) <= length:
