@@ -71,6 +71,11 @@ class Sequence:
         self.balls.append(Ball(point, color))
         self.left = self.get_left()
 
+    def get_penetrated(self, point):
+        position = self.find_position(point[0])
+        self.balls[max(0, position - 1)].collapsing = True
+        self.balls[min(position, len(self.balls) - 1)].collapsing = True
+
     def insert_ball(self, point, color):  # point lies between left & right
         count = 0
         position = self.find_position(point[0])
@@ -134,7 +139,7 @@ class Sequence:
         color = self.balls[0].color
         for i in range(1, len(self.balls)):
             if self.balls[i].color != color:
-                if length >= 3 and cond:
+                if length >= 3 or cond:
                     score = self.remove_collapsing(length, start, speed)
                     return length, color, score
                 else:

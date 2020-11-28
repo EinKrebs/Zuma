@@ -1,6 +1,8 @@
 import math
 import random
 import time
+import typing
+
 from Ellipse import Ellipse
 from Shot import Shot
 from Ball import Ball
@@ -11,8 +13,8 @@ import MathExtentions as mathExt
 class Level:
     def __init__(self,
                  ellipse: Ellipse,
-                 sequences: list,
-                 times: list,
+                 sequences: typing.List[Sequence],
+                 times: typing.List[float],
                  radius=20,
                  speed=1,
                  shot_speed=150,
@@ -127,7 +129,10 @@ class Level:
         for sequence in self.sequences:
             if (mathExt.get_angle(sequence.left) <= intersection_angle
                     <= mathExt.get_angle(sequence.right)):
-                sequence.insert_ball(intersection, shot.color)
+                if shot.penetrate:
+                    sequence.get_penetrated(intersection)
+                else:
+                    sequence.insert_ball(intersection, shot.color)
                 cond = True
         return cond
 
@@ -148,8 +153,8 @@ class Level:
             self.speed = self.std_speed
 
     def process_event(self, length):
-        if random.randint(1, 50) <= length:
-            if random.randint(1, 20) == 1:
+        if random.randint(1, 50) <= 50:  # length:
+            if random.randint(1, 20) <= 20:  # == 1:
                 self.add_super_shots()
             else:
                 if self.timer is not None:
@@ -238,14 +243,20 @@ class Level:
     def get_current_time(self):
         return time.time() - self.start_time
 
-    def shoot(self):
+    def shoot(self, penetrate: bool):
         if self.ping > 0:
             return
+        if penetrate:
+            if self.super_shot_count > 0:
+                self.super_shot_count -= 1
+            else:
+                penetrate = False
         self.shots.append(
             Shot(self.turret[0], self.turret[1],
                  self.current_colors[self.turret_ball],
                  self.turret_angle,
-                 self.shot_speed)
+                 self.shot_speed,
+                 penetrate)
         )
         self.color_count[self.turret_ball] += 1
         self.ping = 20

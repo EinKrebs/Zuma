@@ -38,6 +38,8 @@ class ViewControl(QWidget):
 
         self.timer = self.startTimer(10)
 
+        self.penetrate = False
+
         self.show()
 
     @property
@@ -77,7 +79,9 @@ class ViewControl(QWidget):
             current_level.right = True
             current_level.left = False
         elif event.key() == 0x20:  # Space
-            current_level.shoot()
+            current_level.shoot(self.penetrate)
+        elif event.key() == 0x01000020:  # Shift
+            self.penetrate = True
 
     def keyReleaseEvent(self, event: QtGui.QKeyEvent):
         current_level = self.current_level
@@ -87,6 +91,8 @@ class ViewControl(QWidget):
             current_level.left = False
         elif event.key() == 0x44:  # D
             current_level.right = False
+        elif event.key() == 0x01000020:  # Shift
+            self.penetrate = False
 
     def wheelEvent(self, event: QtGui.QWheelEvent):
         current_level = self.current_level
@@ -100,7 +106,7 @@ class ViewControl(QWidget):
         if not current_level:
             return
         if event.button() == Qt.LeftButton:
-            current_level.shoot()
+            current_level.shoot(self.penetrate)
 
     def paintEvent(self, event: QPaintEvent):
         qp = QPainter()
