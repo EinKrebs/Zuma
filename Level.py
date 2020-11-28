@@ -48,6 +48,10 @@ class Level:
         self.hp = 3
         self.finished = False
 
+        self.timer = None
+        self.std_speed = speed
+        self.super_shot_count = 0
+
         self.more_to_collapse = -1
 
         self.add_balls = True
@@ -133,8 +137,40 @@ class Level:
             length, color, seq_score = sequence.collapse()
             score += seq_score
             if length != 0:
+                self.process_event(length)
                 self.remove_color(color, count=length)
         return score
+
+    def process_event(self, length):
+        if random.randint(1, 50) <= length:
+            if random.randint(1, 20) == 1:
+                self.add_super_shots()
+            else:
+                if self.timer is not None:
+                    return
+                self.timer = time.time()
+                event_type = random.randint(1, 40)
+                if event_type == 1:
+                    self.speed = self.std_speed * 0.25
+                elif 2 <= event_type <= 5:
+                    self.speed = self.std_speed * 0.5
+                elif 6 <= event_type <= 20:
+                    self.speed = self.std_speed * 0.75
+                elif 21 <= event_type <= 35:
+                    self.speed = self.std_speed * 1.25
+                elif 36 <= event_type <= 39:
+                    self.speed = self.std_speed * 1.5
+                else:
+                    self.speed = self.std_speed * 2
+
+    def add_super_shots(self):
+        a = random.randint(1, 100)
+        if a == 100:
+            self.super_shot_count += 3
+        elif a % 10 == 0:
+            self.super_shot_count += 2
+        else:
+            self.super_shot_count += 1
 
     def update_sequences(self):
         if ((self.current_sequence_next is None
