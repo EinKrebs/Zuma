@@ -3,14 +3,14 @@ import unittest
 import math
 import time
 
-from Shot import Shot
-from Ellipse import Ellipse
-from Level import Level
-from Game import Game
-from Ball import Ball
-from Sequence import Sequence
-from MathExtentions import get_distance
-import MathExtentions as mathExt
+from domain.shot import Shot
+from domain.ellipse import Ellipse
+from domain.level import Level
+from domain.game import Game
+from domain.ball import Ball
+from domain.sequence import Sequence
+from math_extensions import get_distance
+import math_extensions as mathExt
 
 
 class ShotTest(unittest.TestCase):

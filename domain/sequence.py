@@ -1,7 +1,7 @@
 import math
-import MathExtentions as mathExt
-from Ellipse import Ellipse
-from Ball import Ball
+import math_extensions as mathExt
+from domain.ellipse import Ellipse
+from domain.ball import Ball
 
 
 class Sequence:

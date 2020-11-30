@@ -1,7 +1,7 @@
 import math
-import MathExtentions as mathExt
-from MathExtentions import (get_distance, get_angle, bin_search,
-                            tern_search, solve_square_poly)
+import math_extensions as mathExt
+from math_extensions import (get_distance, get_angle, bin_search,
+                             tern_search, solve_square_poly)
 
 
 class Ellipse:

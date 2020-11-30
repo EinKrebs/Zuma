@@ -1,4 +1,4 @@
-from Level import Level
+from domain.level import Level
 import os
 
 

@@ -1,4 +1,4 @@
-from MathExtentions import get_distance
+from math_extensions import get_distance
 
 
 class Ball:

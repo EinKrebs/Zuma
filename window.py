@@ -9,10 +9,10 @@ from PyQt5.QtGui import QPainter, QPaintEvent, QFont, QPen, QColor, QPixmap, \
     QTransform
 from PyQt5.QtWidgets import QWidget, QApplication, QLabel
 
-import MathExtentions as mathExt
-from Ellipse import Ellipse
-from Game import Game
-from Level import Level
+import math_extensions as mathExt
+from domain.ellipse import Ellipse
+from domain.game import Game
+from domain.level import Level
 
 
 class ViewControl(QWidget):
@@ -161,7 +161,7 @@ class ViewControl(QWidget):
                        2 * self.ellipse.width, 2 * self.ellipse.height)
 
     def draw_frog(self, qp):
-        self.pixmap = QPixmap('Frog.png')
+        self.pixmap = QPixmap('resources/Frog.png')
         self.image.resize(self.pixmap.width() * math.sqrt(2),
                           self.pixmap.height() * math.sqrt(2))
         self.image.move(self.width // 2 - self.current_level.turret[

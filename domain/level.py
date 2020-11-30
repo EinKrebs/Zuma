@@ -3,11 +3,11 @@ import random
 import time
 import typing
 
-from Ellipse import Ellipse
-from Shot import Shot
-from Ball import Ball
-from Sequence import Sequence
-import MathExtentions as mathExt
+from domain.ellipse import Ellipse
+from domain.shot import Shot
+from domain.ball import Ball
+from domain.sequence import Sequence
+import math_extensions as mathExt
 
 
 class Level:

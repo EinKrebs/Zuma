@@ -1,7 +1,7 @@
 import sys
 import PyQt5.QtWidgets
 
-from Window import ViewControl
+from window import ViewControl
 
 if __name__ == '__main__':
     args = sys.argv
