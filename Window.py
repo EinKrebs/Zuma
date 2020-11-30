@@ -55,9 +55,12 @@ class ViewControl(QWidget):
 
         def next_pressed():
             self.game.next_level()
+            self.next_btn.setEnabled(False)
             self.next_btn.hide()
 
         self.next_btn.clicked.connect(next_pressed)
+        self.next_btn.setEnabled(False)
+        self.next_btn.hide()
         self.next_btn.hide()
 
     def timerEvent(self, e):
@@ -112,19 +115,20 @@ class ViewControl(QWidget):
         qp = QPainter()
         qp.begin(self)
 
-        if self.game.over == 1:
-            self.draw_game_won(qp)
-        elif not self.game.running:
-            self.draw_level_completed(qp)
-        elif self.game.over == -1:
-            self.draw_stats(qp)
-            self.draw_game(qp)
-            self.draw_frog(qp)
-            self.debug_draw(qp)
-        else:
-            self.draw_game_over(qp)
-
-        qp.end()
+        try:
+            if self.game.over == 1:
+                self.draw_game_won(qp)
+            elif not self.game.running:
+                self.draw_level_completed(qp)
+            elif self.game.over == -1:
+                self.draw_stats(qp)
+                self.draw_game(qp)
+                self.draw_frog(qp)
+                self.debug_draw(qp)
+            else:
+                self.draw_game_over(qp)
+        finally:
+            qp.end()
 
     def draw_stats(self, qp):
         qp.setFont(QFont('Segoe UI', 16))
@@ -195,6 +199,7 @@ class ViewControl(QWidget):
         )
 
     def draw_level_completed(self, qp: QPainter):
+        self.next_btn.setEnabled(True)
         self.next_btn.show()
         qp.setFont(QFont('Segoe UI', 30))
         qp.drawText(
