@@ -46,3 +46,11 @@ class Game:
         else:
             self.current_level.start()
         self.running = True
+
+    def pause(self):
+        if self.current_level:
+            self.current_level.pause()
+
+    def resume(self):
+        if self.current_level:
+            self.current_level.resume()

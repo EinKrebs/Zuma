@@ -58,6 +58,8 @@ class Level:
 
         self.add_balls = True
 
+        self.pause_time = None
+
     @staticmethod
     def from_file(file: str):
         with open(file) as f:
@@ -70,6 +72,20 @@ class Level:
             times.append(line[0])
             sequences.append(line[1:])
         return Level(ellipse, sequences, times)
+
+    def pause(self):
+        if self.pause_time is not None:
+            return
+        self.pause_time = time.time()
+
+    def resume(self):
+        if self.pause_time is None:
+            raise ValueError("game is not paused")
+        elapsed = time.time() - self.pause_time
+        self.start_time += elapsed
+        if self.timer is not None:
+            self.timer += elapsed
+        self.pause_time = None
 
     def start(self):
         self.start_time = time.time()

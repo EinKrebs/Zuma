@@ -28,6 +28,7 @@ class ViewControl(QWidget):
         self.image.setAlignment(Qt.AlignCenter)
         self.pixmap = None
         self.running = True
+        self.paused = False
         self.setFixedSize(self.width, self.height)
 
         self.p = None
@@ -68,8 +69,9 @@ class ViewControl(QWidget):
             self.p.join()
         self.update()
         QApplication.processEvents()
-        self.p = Thread(target=self.game.update)
-        self.p.start()
+        if not self.paused:
+            self.p = Thread(target=self.game.update)
+            self.p.start()
 
     def keyPressEvent(self, event: QtGui.QKeyEvent):
         current_level = self.current_level
@@ -85,6 +87,12 @@ class ViewControl(QWidget):
             current_level.shoot(self.penetrate)
         elif event.key() == 0x01000020:  # Shift
             self.penetrate = True
+        elif event.key() == 0x01000000:  # Esc
+            if self.paused:
+                self.game.resume()
+            else:
+                self.game.pause()
+            self.paused = not self.paused
 
     def keyReleaseEvent(self, event: QtGui.QKeyEvent):
         current_level = self.current_level
@@ -120,6 +128,8 @@ class ViewControl(QWidget):
                 self.draw_game_won(qp)
             elif not self.game.running:
                 self.draw_level_completed(qp)
+            elif self.paused:
+                self.draw_pause(qp)
             elif self.game.over == -1:
                 self.draw_stats(qp)
                 self.draw_game(qp)
@@ -216,6 +226,14 @@ class ViewControl(QWidget):
             Qt.AlignCenter,
             'Congratulations,\n you won the game!\n'
             f'Your final score is {self.game.score}'
+        )
+
+    def draw_pause(self, qp: QPainter):
+        qp.setFont(QFont('Segoe UI', 30))
+        qp.drawText(
+            QtCore.QRect(0, 0, self.width, self.height),
+            Qt.AlignCenter,
+            'Paused'
         )
 
     def debug_draw(self, qp: QPainter):
