@@ -46,7 +46,6 @@ class ViewControl(QWidget):
         self.sound_unit = SoundUnit()
         self.sound_unit.play_music()
 
-
     @property
     def ellipse(self) -> Ellipse:
         return self.game.current_level.ellipse
