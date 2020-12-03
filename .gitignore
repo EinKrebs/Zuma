@@ -4,3 +4,13 @@
 __pycache__/
 
 TODO's
+
+venv/bin/
+
+venv/lib/python3.8/site-packages/PyQt5/Qt/qml/QtQuick3D/designer/
+
+venv/lib/python3.8/site-packages/PyQt5/Qt/qml/QtQuick3D/Materials/designer/
+
+venv/lib/python3.8/site-packages/PyQt5/
+
+venv/

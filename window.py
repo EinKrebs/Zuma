@@ -9,10 +9,11 @@ from PyQt5.QtGui import QPainter, QPaintEvent, QFont, QPen, QColor, QPixmap, \
     QTransform
 from PyQt5.QtWidgets import QWidget, QApplication, QLabel
 
-import math_extensions as mathExt
+import math_extensions as math_ext
 from domain.ellipse import Ellipse
 from domain.game import Game
 from domain.level import Level
+from sound_unit import SoundUnit
 
 
 class ViewControl(QWidget):
@@ -42,6 +43,9 @@ class ViewControl(QWidget):
         self.penetrate = False
 
         self.show()
+        self.sound_unit = SoundUnit()
+        self.sound_unit.play_music()
+
 
     @property
     def ellipse(self) -> Ellipse:
@@ -239,11 +243,11 @@ class ViewControl(QWidget):
     def debug_draw(self, qp: QPainter):
         pen = QPen(QColor(0, 0, 0), 4, Qt.SolidLine)
         qp.setPen(pen)
-        start = mathExt.translate_point(
+        start = math_ext.translate_point(
             self.current_level.turret,
             self.width,
             self.height)
-        end = mathExt.translate_point(
+        end = math_ext.translate_point(
             self.ellipse.get_coordinates(
                 self.current_level.turret_angle,
                 self.current_level.turret),
