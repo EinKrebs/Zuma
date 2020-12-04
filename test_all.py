@@ -10,7 +10,8 @@ from domain.game import Game
 from domain.ball import Ball
 from domain.sequence import Sequence
 from math_extensions import get_distance
-import math_extensions as mathExt
+from sound_unit import SoundUnit
+import math_extensions as math_ext
 
 
 class ShotTest(unittest.TestCase):
@@ -25,9 +26,9 @@ class ShotTest(unittest.TestCase):
             shot.update()
             x1 = shot.x
             y1 = shot.y
-            self.assertAlmostEqual(mathExt.get_angle((x1 - x, y1 - y)), angle)
+            self.assertAlmostEqual(math_ext.get_angle((x1 - x, y1 - y)), angle)
             self.assertAlmostEqual(
-                mathExt.get_distance(
+                math_ext.get_distance(
                     (x1, y1),
                     (x, y)),
                 speed
@@ -97,7 +98,7 @@ class EllipseTests(unittest.TestCase):
             point = ellipse.get_coordinates(angle, (0, height))
             self.assertIn(point, ellipse)
             self.assertAlmostEqual(
-                mathExt.get_angle((point[0], point[1] - height)), angle)
+                math_ext.get_angle((point[0], point[1] - height)), angle)
 
     def test_next_point(self):
         random.seed = 100
@@ -157,7 +158,7 @@ class SequenceTests(unittest.TestCase):
             start=-1.5
         ))
         self.assertAlmostEqual(
-            mathExt.get_distance(
+            math_ext.get_distance(
                 sequence.balls[0].point,
                 sequence.left),
             2 * radius,
@@ -298,7 +299,7 @@ class LevelTest(unittest.TestCase):
         level.go_next_state()
         level.go_next_state()
         level.speed = 0
-        shot_angle = mathExt.get_biased_angle(
+        shot_angle = math_ext.get_biased_angle(
             level.sequences[0].balls[0].point,
             level.turret
         ) + 0.1
@@ -329,7 +330,7 @@ class LevelTest(unittest.TestCase):
         level.go_next_state()
         level.go_next_state()
         level.speed = 0
-        shot_angle = mathExt.get_biased_angle(
+        shot_angle = math_ext.get_biased_angle(
             level.balls[0].point,
             level.turret
         ) - 0.1
@@ -379,7 +380,7 @@ class LevelTest(unittest.TestCase):
         self.assertEqual(len(level.balls), 2)
         self.assertEqual(len(level.color_count), 1)
         self.assertEqual(level.color_count[0], 2)
-        level.turret_angle = mathExt.get_biased_angle(
+        level.turret_angle = math_ext.get_biased_angle(
             level.balls[1].point,
             level.turret) + 0.1
         level.speed = 0
@@ -438,7 +439,7 @@ class GameTests(unittest.TestCase):
         return True
     
     def test_general(self):
-        game = Game.from_directory('test_levels')
+        game = Game.from_directory('test_levels', SoundUnit())
         level = Level.from_file('test_levels\\test_level1.txt')
         self.assertTrue(self.level_equals(level, game.current_level))
         game.update()

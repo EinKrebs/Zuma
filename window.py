@@ -36,15 +36,15 @@ class ViewControl(QWidget):
         self.next_btn = None
         self.initialise_button()
 
-        self.game = Game.from_directory(directory)
+        self.sound_unit = SoundUnit()
+        self.sound_unit.play_music()
+        self.game = Game.from_directory(directory, self.sound_unit)
 
         self.timer = self.startTimer(10)
 
         self.penetrate = False
 
         self.show()
-        self.sound_unit = SoundUnit()
-        self.sound_unit.play_music()
 
     @property
     def ellipse(self) -> Ellipse:

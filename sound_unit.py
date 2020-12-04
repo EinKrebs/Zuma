@@ -10,7 +10,6 @@ class SoundUnit:
         self.music_track = self.format_filename('music')
         self.shot = self.format_filename('shot')
         self.super_shot = self.format_filename('super_shot')
-        self.level_end_pop = self.format_filename('level_end_pop')
         self.ball_insertion = self.format_filename('ball_insertion')
         self.balls_destroyed = self.format_filename('balls_destroyed')
         self.music_player = QMediaPlayer()

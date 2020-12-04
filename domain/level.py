@@ -7,7 +7,8 @@ from domain.ellipse import Ellipse
 from domain.shot import Shot
 from domain.ball import Ball
 from domain.sequence import Sequence
-import math_extensions as mathExt
+from sound_unit import SoundUnit
+import math_extensions as math_ext
 
 
 class Level:
@@ -15,6 +16,7 @@ class Level:
                  ellipse: Ellipse,
                  sequences: typing.List[Sequence],
                  times: typing.List[float],
+                 sound_unit: SoundUnit,
                  radius=20,
                  speed=1,
                  shot_speed=150,
@@ -60,8 +62,10 @@ class Level:
 
         self.pause_time = None
 
+        self.sound_unit = sound_unit
+
     @staticmethod
-    def from_file(file: str):
+    def from_file(file: str, sound_unit: SoundUnit):
         with open(file) as f:
             array = f.readlines()
         ellipse = Ellipse.from_string(array[0])
@@ -71,7 +75,7 @@ class Level:
             line = list(map(int, array[i].split()))
             times.append(line[0])
             sequences.append(line[1:])
-        return Level(ellipse, sequences, times)
+        return Level(ellipse, sequences, times, sound_unit)
 
     def pause(self):
         if self.pause_time is not None:
@@ -141,13 +145,15 @@ class Level:
     def process_hit(self, shot):
         cond = False
         intersection = self.ellipse.get_coordinates(shot.angle, self.turret)
-        intersection_angle = mathExt.get_angle(intersection)
+        intersection_angle = math_ext.get_angle(intersection)
         for sequence in self.sequences:
-            if (mathExt.get_angle(sequence.left) <= intersection_angle
-                    <= mathExt.get_angle(sequence.right)):
+            if (math_ext.get_angle(sequence.left) <= intersection_angle
+                    <= math_ext.get_angle(sequence.right)):
                 if shot.penetrate:
                     sequence.get_penetrated(intersection)
                 else:
+                    self.sound_unit.action_sound(
+                        self.sound_unit.ball_insertion)
                     sequence.insert_ball(intersection, shot.color)
                 cond = True
         return cond
@@ -158,6 +164,7 @@ class Level:
             length, color, seq_score = sequence.collapse(self.speed)
             score += seq_score
             if length != 0:
+                self.sound_unit.action_sound(self.sound_unit.balls_destroyed)
                 self.process_event(length)
                 self.remove_color(color, count=length)
         return score
@@ -245,8 +252,8 @@ class Level:
 
                 self.add_color(ball.color)
                 return
-            if (mathExt.get_angle(self.sequences[-1].left) >
-                mathExt.get_angle(self.ellipse.next_point(
+            if (math_ext.get_angle(self.sequences[-1].left) >
+                math_ext.get_angle(self.ellipse.next_point(
                     self.ellipse.start_point,
                     self.radius))
                     or len(self.sequences[-1].balls) == 0):
@@ -267,6 +274,9 @@ class Level:
                 self.super_shot_count -= 1
             else:
                 penetrate = False
+        self.sound_unit.action_sound(self.sound_unit.super_shot
+                                     if penetrate
+                                     else self.sound_unit.shot)
         self.shots.append(
             Shot(self.turret[0], self.turret[1],
                  self.current_colors[self.turret_ball],
