@@ -154,8 +154,7 @@ class Level:
                 if shot.penetrate:
                     sequence.get_penetrated(intersection)
                 else:
-                    self.sound_unit.action_sound(
-                        self.sound_unit.ball_insertion)
+                    self.sound_unit.ball_insertion_sound()
                     sequence.insert_ball(intersection, shot.color)
                 cond = True
         return cond
@@ -166,7 +165,7 @@ class Level:
             length, color, seq_score = sequence.collapse(self.speed)
             score += seq_score
             if length != 0:
-                self.sound_unit.action_sound(self.sound_unit.balls_destroyed)
+                self.sound_unit.balls_destroyed_sound()
                 self.process_event(length)
                 self.remove_color(color, count=length)
         return score
@@ -178,8 +177,8 @@ class Level:
             self.speed = self.std_speed
 
     def process_event(self, length):
-        if random.randint(1, 50) <= 50:  # length:
-            if random.randint(1, 20) <= 20:  # == 1:
+        if random.randint(1, 50) <= length:
+            if random.randint(1, 10) == 1:
                 self.add_super_shots()
             else:
                 if self.timer is not None:
@@ -276,9 +275,10 @@ class Level:
                 self.super_shot_count -= 1
             else:
                 penetrate = False
-        self.sound_unit.action_sound(self.sound_unit.super_shot
-                                     if penetrate
-                                     else self.sound_unit.shot)
+        if penetrate:
+            self.sound_unit.super_shot_sound()
+        else:
+            self.sound_unit.shot_sound()
         self.shots.append(
             Shot(self.turret[0], self.turret[1],
                  (self.current_colors[self.turret_ball]

@@ -9,14 +9,28 @@ class Sequence:
         self.balls = [ball]
         self.ellipse = ellipse
         self.radius = radius
-        self.left = self.get_left()
-        self.right = self.get_right()
+        self._left = None
+        self._right = None
         self.more_to_collapse = -1
+
+    @property
+    def left(self):
+        if self._left is None:
+            self._left = self.get_left()
+        return self._left
+
+    @property
+    def right(self):
+        if self._right is None:
+            self._right = self.get_right()
+        return self._right
 
     def __len__(self):
         return len(self.balls)
 
     def get_right(self):
+        if len(self.balls) == 0:
+            return self.ellipse.start_point
         return self.ellipse.next_point(
             self.balls[0].point,
             2 * self.radius,
@@ -24,6 +38,8 @@ class Sequence:
         )
 
     def get_left(self):
+        if len(self.balls) == 0:
+            return self.ellipse.start_point
         return self.ellipse.previous_point(
             self.balls[-1].point,
             2 * self.radius,
@@ -41,6 +57,7 @@ class Sequence:
                 ball = self.balls[index]
             except IndexError:
                 print('fuck!')
+                return
             new_point = self.ellipse.next_point(ball.point, distance)
             if new_point is None:
                 self.balls.pop(index)
@@ -56,8 +73,8 @@ class Sequence:
             index -= 1
 
         if len(self.balls) > 0:
-            self.right = self.get_right()
-            self.left = self.get_left()
+            self._right = None
+            self._left = None
         return count
 
     def add_ball(self, color):
@@ -69,12 +86,12 @@ class Sequence:
                 raise ValueError
             point = self.left
         self.balls.append(Ball(point, color))
-        self.left = self.get_left()
+        self._left = None
 
     def get_penetrated(self, point):
         position = self.find_position(point[0])
-        self.balls[max(0, position - 1)].collapsing = True
-        self.balls[min(position, len(self.balls) - 1)].collapsing = True
+        self.balls[max(0, position - 1)].exploding = True
+        self.balls[min(position, len(self.balls) - 1)].exploding = True
 
     def insert_ball(self, point, color):  # point lies between left & right
         if not(self.right[0] < point[0] < self.left[0]
@@ -129,7 +146,7 @@ class Sequence:
                 2 * self.radius)
             point = self.balls[i].point
         self.more_to_collapse = -1
-        self.right = self.get_right()
+        self._right = None
 
     def collapse(self, speed):
         if len(self.balls) == 0:
@@ -139,10 +156,11 @@ class Sequence:
         start = 0
         length = 1
         cond = self.balls[0].collapsing
+        exploding = self.balls[0].exploding
         color = self.balls[0].color
         for i in range(1, len(self.balls)):
             if self.balls[i].color != color:
-                if length >= 3 or cond:
+                if (length >= 3 and cond) or exploding:
                     score = self.remove_collapsing(length, start, speed)
                     return length, color, score
                 else:
@@ -150,12 +168,16 @@ class Sequence:
                     length = 1
                     color = self.balls[i].color
                     cond = self.balls[i].collapsing
+                    exploding = self.balls[i].exploding
             else:
                 cond = cond or self.balls[i].collapsing
+                exploding = exploding or self.balls[i].exploding
                 length += 1
-        if length >= 3 and cond:
+        if (length >= 3 and cond) or exploding:
             score = self.remove_collapsing(length, start, speed)
             return length, color, score
+        for ball in self.balls:
+            ball.collapsing = False
         return 0, (0, 0, 0), 0
 
     def remove_collapsing(self, length, start, speed):

@@ -4,22 +4,30 @@ import os
 import time
 
 
+def restart_player(player: QMediaPlayer):
+    player.stop()
+    player.play()
+
+
 class SoundUnit:
     def __init__(self):
         self.dir = os.getcwd()
-        self.music_track = self.format_filename('music')
-        self.shot = self.format_filename('shot')
-        self.super_shot = self.format_filename('super_shot')
-        self.ball_insertion = self.format_filename('ball_insertion')
-        self.balls_destroyed = self.format_filename('balls_destroyed')
+        self._music_track = self.format_filename('music')
         self.music_player = QMediaPlayer()
         self.music = self.setup_playlist()
-        self.action_player = QMediaPlayer()
+        self._shot_player = self.setup_music_player(
+            self.format_filename('shot'))
+        self._super_shot_player = self.setup_music_player(
+            self.format_filename('super_shot'))
+        self._ball_insertion_player = self.setup_music_player(
+            self.format_filename('ball_insertion'))
+        self._balls_destroyed_player = self.setup_music_player(
+            self.format_filename('balls_destroyed'))
 
     def setup_playlist(self):
         music = QMediaPlaylist()
         music.addMedia(
-            QMediaContent(QUrl.fromLocalFile(self.music_track)))
+            QMediaContent(QUrl.fromLocalFile(self._music_track)))
         music.setPlaybackMode(QMediaPlaylist.Loop)
         return music
 
@@ -27,8 +35,10 @@ class SoundUnit:
         return f'{self.dir}/resources/{name}.ogg'
 
     @staticmethod
-    def set_music_player(player: QMediaPlayer, filename: str):
+    def setup_music_player(filename: str):
+        player = QMediaPlayer()
         player.setMedia(QMediaContent(QUrl.fromLocalFile(filename)))
+        return player
 
     @staticmethod
     def stop_player(player: QMediaPlayer):
@@ -47,7 +57,14 @@ class SoundUnit:
             raise ValueError("Not playing")
         self.music_player.stop()
 
-    def action_sound(self, action: str):
-        self.action_player.stop()
-        self.set_music_player(self.action_player, action)
-        self.action_player.play()
+    def shot_sound(self):
+        restart_player(self._shot_player)
+
+    def super_shot_sound(self):
+        restart_player(self._super_shot_player)
+
+    def ball_insertion_sound(self):
+        restart_player(self._ball_insertion_player)
+
+    def balls_destroyed_sound(self):
+        restart_player(self._balls_destroyed_player)

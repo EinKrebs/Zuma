@@ -6,6 +6,7 @@ class Ball:
         self.point = point
         self.color = color
         self.collapsing = False
+        self.exploding = False
 
     def __eq__(self, other):
         return (self.color == other.color
