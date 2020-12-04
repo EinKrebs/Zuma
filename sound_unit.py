@@ -38,6 +38,7 @@ class SoundUnit:
     def play_music(self):
         if self.music_player.state() == QMediaPlayer.PlayingState:
             raise ValueError("Playing already")
+        self.music_player.setVolume(10)
         self.music_player.setPlaylist(self.music)
         self.music_player.play()
 

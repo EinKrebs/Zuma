@@ -146,6 +146,8 @@ class Level:
         cond = False
         intersection = self.ellipse.get_coordinates(shot.angle, self.turret)
         intersection_angle = math_ext.get_angle(intersection)
+        if len(self.sequences) == 0:
+            return
         for sequence in self.sequences:
             if (math_ext.get_angle(sequence.left) <= intersection_angle
                     <= math_ext.get_angle(sequence.right)):
@@ -176,8 +178,8 @@ class Level:
             self.speed = self.std_speed
 
     def process_event(self, length):
-        if random.randint(1, 50) <= length:
-            if random.randint(1, 20) == 1:
+        if random.randint(1, 50) <= 50:  # length:
+            if random.randint(1, 20) <= 20:  # == 1:
                 self.add_super_shots()
             else:
                 if self.timer is not None:
@@ -279,14 +281,17 @@ class Level:
                                      else self.sound_unit.shot)
         self.shots.append(
             Shot(self.turret[0], self.turret[1],
-                 self.current_colors[self.turret_ball],
+                 (self.current_colors[self.turret_ball]
+                  if len(self.current_colors) > 0
+                  else (0, 0, 0)),
                  self.turret_angle,
                  self.shot_speed,
                  penetrate)
         )
-        self.color_count[self.turret_ball] += 1
+        if len(self.color_count) > 0:
+            self.color_count[self.turret_ball] += 1
+            self.turret_ball = random.randint(0, len(self.current_colors) - 1)
         self.ping = 20
-        self.turret_ball = random.randint(0, len(self.current_colors) - 1)
 
     def turn_turret(self, angle):
         self.turret_angle += angle
@@ -302,6 +307,8 @@ class Level:
         self.color_count[self.get_color_number(color)] += 1
 
     def remove_color(self, color, count=1):
+        if len(self.color_count) == 0:
+            return
         index = self.get_color_number(color)
         if index == -1:
             raise ValueError

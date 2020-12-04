@@ -77,6 +77,9 @@ class Sequence:
         self.balls[min(position, len(self.balls) - 1)].collapsing = True
 
     def insert_ball(self, point, color):  # point lies between left & right
+        if not(self.right[0] < point[0] < self.left[0]
+               and len(self.balls) > 0):
+            return 0
         count = 0
         position = self.find_position(point[0])
         ball = None

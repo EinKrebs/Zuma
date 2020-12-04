@@ -142,6 +142,7 @@ class ViewControl(QWidget):
                 self.draw_game_over(qp)
         finally:
             qp.end()
+        self.show()
 
     def draw_stats(self, qp):
         qp.setFont(QFont('Segoe UI', 16))
@@ -198,10 +199,15 @@ class ViewControl(QWidget):
                            self.current_level.radius,
                            QColor(*ball.color))
         for shot in self.current_level.shots:
-            self.draw_ball(qp,
-                           (shot.x, shot.y),
-                           self.current_level.radius,
-                           QColor(*shot.color))
+            if shot.penetrate:
+                self.draw_super_shot(qp,
+                                     (shot.x, shot.y),
+                                     self.current_level.radius)
+            else:
+                self.draw_ball(qp,
+                               (shot.x, shot.y),
+                               self.current_level.radius,
+                               QColor(*shot.color))
 
     def draw_game_over(self, qp: QPainter):
         qp.setFont(QFont('Segoe UI', 30))
@@ -267,6 +273,22 @@ class ViewControl(QWidget):
                        self.height - point[1] - radius,
                        2 * radius,
                        2 * radius)
+
+    def draw_super_shot(self, qp, point, radius):
+        qp.setBrush(QColor(255, 255, 255))
+        pen = QPen(QColor(0, 0, 0), 1, Qt.SolidLine)
+        qp.setPen(pen)
+        qp.drawEllipse(self.width // 2 - point[0] - 1.25 * radius,
+                       self.height - point[1] - 1.25 * radius,
+                       2.5 * radius,
+                       2.5 * radius)
+        qp.setBrush(QColor(255, 0, 0))
+        pen = QPen(QColor(0, 0, 0), 1, Qt.SolidLine)
+        qp.setPen(pen)
+        qp.drawEllipse(self.width // 2 - point[0] - 0.75 * radius,
+                       self.height - point[1] - 0.75 * radius,
+                       1.5 * radius,
+                       1.5 * radius)
 
     def closeEvent(self, a0: QtGui.QCloseEvent):
         self.killTimer(self.timer)
