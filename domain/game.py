@@ -19,7 +19,7 @@ class Game:
     def from_directory(directory, sound_unit):
         levels = [
             Level.from_file(os.path.join(directory, file), sound_unit)
-            for file in os.listdir(directory)]
+            for file in sorted(os.listdir(directory))]
         return Game(levels)
 
     @property

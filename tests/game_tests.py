@@ -1,0 +1,74 @@
+import unittest
+
+from domain.game import Game
+from domain.level import Level
+from tests.sound_mock import SoundMock
+
+
+mock = SoundMock()
+
+
+class GameTests(unittest.TestCase):
+    @staticmethod
+    def two_dim_lists_equal(first, second, param):
+        cond = len(first) == len(second)
+        if cond:
+            for i in range(len(first)):
+                cond1 = (len(param(first[i]))
+                         == len(param(second[i])))
+                if cond1:
+                    for j in range(len(param(first[i]))):
+                        cond1 = (cond1
+                                 and param(first[i])[j]
+                                 == param(second[i])[j])
+                cond = cond and cond1
+        return cond
+
+    @staticmethod
+    def level_equals(first: Level, second: Level):
+        cond = GameTests.two_dim_lists_equal(first.sequences,
+                                             second.sequences,
+                                             lambda x: x.balls)
+        cond = cond and GameTests.two_dim_lists_equal(
+            first.next_sequences,
+            second.next_sequences,
+            lambda x: x
+        )
+        if not cond:
+            return cond
+        if ((first.current_sequence_next is None
+             and second.current_sequence_next is not None)
+                or (first.current_sequence_next is not None
+                    and second.current_sequence_next is None)):
+            return False
+        if first.current_sequence_next is None:
+            return True
+        if (len(first.current_sequence_next)
+                != len(second.current_sequence_next)):
+            return False
+        for i in range(len(first.current_sequence_next)):
+            if (first.current_sequence_next[i]
+                    != second.current_sequence_next[i]):
+                return False
+        return True
+
+    def test_general(self):
+        game = Game.from_directory('test_levels', mock)
+        level = Level.from_file('test_levels/test_level1.txt', mock)
+        self.assertTrue(self.level_equals(level, game.current_level))
+        game.update()
+        level.go_next_state()
+        self.assertTrue(self.level_equals(level, game.current_level))
+        game.current_level.finished = True
+        game.update()
+        self.assertTrue(self.level_equals(level, game.current_level))
+        game.current_level.hp = 0
+        game.current_level.finished = False
+        game.update()
+        self.assertTrue(self.level_equals(level, game.current_level))
+        game.next_level()
+        level = Level.from_file('test_levels/test_level2.txt', mock)
+        self.assertTrue(self.level_equals(level, game.current_level))
+        game.next_level()
+        self.assertEqual(game.over, 1)
+        self.assertIsNone(game.current_level)
