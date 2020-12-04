@@ -178,6 +178,10 @@ class ViewControl(QWidget):
         self.image.setPixmap(self.pixmap.transformed(t))
         if len(self.current_level.current_colors) == 0:
             return
+        if (self.current_level.turret_ball
+                >= len(self.current_level.current_colors)):
+            self.current_level.turret_ball = len(
+                self.current_level.current_colors) - 1
         transform = qp.transform()
         qp.translate(
             self.width // 2 - self.current_level.turret[
