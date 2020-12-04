@@ -2,10 +2,6 @@ import unittest
 
 from domain.game import Game
 from domain.level import Level
-from tests.sound_mock import SoundMock
-
-
-mock = SoundMock()
 
 
 class GameTests(unittest.TestCase):
@@ -53,8 +49,8 @@ class GameTests(unittest.TestCase):
         return True
 
     def test_general(self):
-        game = Game.from_directory('test_levels', mock)
-        level = Level.from_file('test_levels/test_level1.txt', mock)
+        game = Game.from_directory('test_levels')
+        level = Level.from_file('test_levels/test_level1.txt')
         self.assertTrue(self.level_equals(level, game.current_level))
         game.update()
         level.go_next_state()
@@ -67,7 +63,7 @@ class GameTests(unittest.TestCase):
         game.update()
         self.assertTrue(self.level_equals(level, game.current_level))
         game.next_level()
-        level = Level.from_file('test_levels/test_level2.txt', mock)
+        level = Level.from_file('test_levels/test_level2.txt')
         self.assertTrue(self.level_equals(level, game.current_level))
         game.next_level()
         self.assertEqual(game.over, 1)

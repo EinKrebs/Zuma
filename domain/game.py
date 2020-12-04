@@ -1,13 +1,9 @@
 from domain.level import Level
-from sound_unit import SoundUnit
 import os
 
 
 class Game:
-    def __init__(
-        self,
-        levels,
-    ):
+    def __init__(self, levels):
         self.levels = levels
         self.current_level_index = 0
         self.last_level_complete_time = None
@@ -16,7 +12,7 @@ class Game:
         self.score = 0
 
     @staticmethod
-    def from_directory(directory, sound_unit):
+    def from_directory(directory, sound_unit=None):
         levels = [
             Level.from_file(os.path.join(directory, file), sound_unit)
             for file in sorted(os.listdir(directory))]

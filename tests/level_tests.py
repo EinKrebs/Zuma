@@ -5,15 +5,11 @@ import unittest
 import math_extensions as math_ext
 from domain.ellipse import Ellipse
 from domain.level import Level
-from tests.sound_mock import SoundMock
-
-
-mock = SoundMock()
 
 
 class LevelTests(unittest.TestCase):
     def test_from_file(self):
-        level = Level.from_file('test_levels/test_level1.txt', mock)
+        level = Level.from_file('test_levels/test_level1.txt')
         self.assertListEqual(level.times, [10, 0])
         self.assertListEqual(level.next_sequences,
                              [[0, 0, 0, 1, 0],
@@ -27,7 +23,7 @@ class LevelTests(unittest.TestCase):
             ellipse,
             [[0]],
             [0],
-            mock,
+            None,
             5,
             50,
             150,
@@ -59,7 +55,7 @@ class LevelTests(unittest.TestCase):
             ellipse,
             [[0]],
             [0],
-            mock,
+            None,
             5,
             50,
             150,
@@ -90,8 +86,7 @@ class LevelTests(unittest.TestCase):
 
     def test_fail(self):
         ellipse = Ellipse(100, 50, 0, math.pi)
-        level = Level(ellipse, [[0, 0, 0]], [0], radius=10, speed=100,
-                      sound_unit=mock)
+        level = Level(ellipse, [[0, 0, 0]], [0], radius=10, speed=100)
         time.sleep(1)
         for i in range(1000):
             level.go_next_state()
@@ -99,8 +94,7 @@ class LevelTests(unittest.TestCase):
 
     def test_turret(self):
         ellipse = Ellipse(100, 50, 0, math.pi)
-        level = Level(ellipse, [[0]], [0], radius=10, speed=0,
-                      sound_unit=mock)
+        level = Level(ellipse, [[0]], [0], radius=10, speed=0)
         level.left = True
         self.assertAlmostEqual(level.turret_angle, math.pi / 2)
         for i in range(50):
@@ -115,8 +109,7 @@ class LevelTests(unittest.TestCase):
     def test_collapse(self):
         ellipse = Ellipse(200, 100, 0, math.pi)
         level = Level(ellipse, [[0, 0]], [0],
-                      radius=10, speed=10, shot_speed=250,
-                      sound_unit=mock)
+                      radius=10, speed=10, shot_speed=250)
         time.sleep(1)
         for i in range(4):
             level.go_next_state()
