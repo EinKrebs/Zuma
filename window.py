@@ -17,7 +17,7 @@ from sound_unit import SoundUnit
 
 
 class ViewControl(QWidget):
-    def __init__(self, directory='levels'):
+    def __init__(self, directories=None, files=None):
         super().__init__()
 
         self.text = 'Hello world!'
@@ -38,7 +38,7 @@ class ViewControl(QWidget):
 
         self.sound_unit = SoundUnit()
         self.sound_unit.play_music()
-        self.game = Game.from_directory(directory, self.sound_unit)
+        self.game = Game.from_directory(directories, files, self.sound_unit)
 
         self.timer = self.startTimer(10)
 

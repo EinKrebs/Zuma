@@ -107,7 +107,7 @@ class Level:
         self.update_sequences()
         self.move_balls_next_state(self.speed)
         self.move_shots()
-        self.score += self.collapse()
+        self.score += int(self.collapse())
         self.new_ball()
         if self.turret_ball == -1:
             self.turret_ball = random.randint(
