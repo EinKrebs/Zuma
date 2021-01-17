@@ -1,7 +1,10 @@
+import os
 import unittest
+import unittest.mock
 
 from domain.game import Game
 from domain.level import Level
+from sound_unit import SoundUnit
 
 
 class GameTests(unittest.TestCase):
@@ -49,7 +52,8 @@ class GameTests(unittest.TestCase):
         return True
 
     def test_general(self):
-        game = Game.from_directory('test_levels')
+        mock = unittest.mock.create_autospec(SoundUnit)
+        game = Game.from_directory(['test_levels'], [], sound_unit=mock)
         level = Level.from_file('test_levels/test_level1.txt')
         self.assertTrue(self.level_equals(level, game.current_level))
         game.update()

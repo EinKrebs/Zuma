@@ -23,7 +23,7 @@ class Game:
             file_names.append(file)
         levels = [
             Level.from_file(file_name, sound_unit)
-            for file_name in file_names]
+            for file_name in sorted(file_names)]
         return Game(levels, sound_unit)
 
     @property
