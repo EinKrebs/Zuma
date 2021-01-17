@@ -1,8 +1,5 @@
-from sound_unit import SoundUnit
-
-
 # noinspection PyMissingConstructor
-class SoundMock(SoundUnit):
+class SoundMock:
     def __init__(self):
         pass
 
